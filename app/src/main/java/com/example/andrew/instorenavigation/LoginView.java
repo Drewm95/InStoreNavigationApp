@@ -1,5 +1,9 @@
 package com.example.andrew.instorenavigation;
 
+/*
+ *The LoginView class will provide a login page for the user.
+ */
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
