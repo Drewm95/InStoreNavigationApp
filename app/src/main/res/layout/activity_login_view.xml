@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app=""
+
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_login_view"
     android:layout_width="match_parent"
@@ -18,7 +18,7 @@
         android:ems="10"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/editText"
+        android:id="@+id/passwordView"
         android:hint="Password"
         android:singleLine="true" />
 
@@ -27,12 +27,12 @@
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
         android:ems="10"
-        android:layout_above="@+id/editText"
-        android:layout_alignStart="@+id/editText"
+        android:layout_above="@+id/passwordView"
+        android:layout_alignStart="@+id/passwordView"
         android:layout_marginBottom="25dp"
-        android:id="@+id/editText2"
         android:hint="Email"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:id="@+id/emailView" />
 
     <TextView
         android:text="In Store Navigation"
@@ -50,7 +50,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="65dp"
         android:id="@+id/loginButton"
-        android:onClick="AuthenticateUserDetails (LoginView)"
         style="@style/Widget.AppCompat.Button.Colored"
         android:background="@android:color/holo_green_light"
         android:layout_alignParentBottom="true"
