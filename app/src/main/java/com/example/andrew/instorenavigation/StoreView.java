@@ -48,7 +48,7 @@ public class StoreView extends Activity {
                         Log.d("Response", response);
 
                         if(response.length() > 1){
-
+                            //TODO Append the Store to the current list of stores
                         }
                     }
                 },
@@ -61,18 +61,19 @@ public class StoreView extends Activity {
                 }
         ) {
             @Override
-            protected String getParams() {
-                return listID;
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("listID", listID);
+                params.put("listID", listID);
+
+                return params;
             }
         };
         queue.add(postRequest);
-        //TODO Update storeView.xml
     }
 
     //TODO Create a button that will set the store to pass to Path class, an then redirect to NavigationView
     public void onClick(View v) {
 
     }
-    }
-
 }
