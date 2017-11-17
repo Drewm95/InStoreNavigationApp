@@ -2,6 +2,7 @@
 package com.example.andrew.instorenavigation;
 
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
  * https://www.youtube.com/watch?v=RXtj4TxMmW0
  */
 
-public class ListView extends AppCompatActivity {
+public class ListView extends Activity {
 
     DbHelper dbHelper;
     ArrayAdapter<String> mAdapter;

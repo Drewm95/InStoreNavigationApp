@@ -50,9 +50,7 @@ public class Path extends Activity{
     }
 
     public void setNodesVisited(final int productId, final int storeId) {
-        //TODO call for a query that uses the product information and store to find the nodes visited
-            //First node must be a start point
-        //TODO Also be able to get route information
+
 
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(this);
