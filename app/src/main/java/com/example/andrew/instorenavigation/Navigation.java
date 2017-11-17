@@ -173,28 +173,28 @@ public class Navigation extends Activity implements SensorEventListener {
                 //if not don't count it, people don't walk that fast
                 if (Calendar.getInstance().getTimeInMillis() > lastUpdate.getTime() + 500) {
                     //A step was detected
-                    stepDetected.setVisibility(View.VISIBLE);
+                    //stepDetected.setVisibility(View.VISIBLE);
                     stepCount++;
-                    stepCountView.setText(Integer.toString(stepCount));
+                    //stepCountView.setText(Integer.toString(stepCount));
                     lastUpdate = Calendar.getInstance().getTime();
                 }
             } else {
-                stepDetected.setVisibility(View.INVISIBLE);
+               // stepDetected.setVisibility(View.INVISIBLE);
             }
 
             //report other readings
             //if (newX > lastx + 0.1 || newX < lastx - 0.1)
-            x.setText(Float.toString(event.values[0]));
+           // x.setText(Float.toString(event.values[0]));
             //if (newY > lasty + 0.1 || newY < lasty - 0.1)
-            y.setText(Float.toString(event.values[1]));
+           // y.setText(Float.toString(event.values[1]));
             //if (newZ > lastZ + 0.1 || newZ < lastZ - 0.1)
-            z.setText(Float.toString(event.values[2]));
+           // z.setText(Float.toString(event.values[2]));
 
             //get the average z
             count++;
             zSum += newZ;
             avgZ = zSum / count;
-            avgZText.setText(Float.toString(avgZ));
+           // avgZText.setText(Float.toString(avgZ));
 
             //assign value to lastxyz before moving on
             lastZ = newZ;
