@@ -1,5 +1,6 @@
 package com.example.andrew.instorenavigation;
 
+import android.app.Activity;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -19,7 +20,7 @@ import java.util.Map;
  * calculate a path.
  */
 
-public class Path {
+public class Path extends Activity{
 
     private int nodeCount;
     private int[][] nodeEdgeData;
@@ -27,7 +28,7 @@ public class Path {
 
     private ArrayList<Integer> nodesVisited;
     private ArrayList<Integer> products;
-    private String store;
+    private int store;
 
     //Every even number will be a diatance, and every odd number will be a direction associated with
         //the distance before hand.
@@ -38,30 +39,27 @@ public class Path {
     //Which is listing the X and Y of connected nodes and the length between them. The collection
     // contains the nodes needed to travel between a start and end node.
 
-    Path(String store, ArrayList<Integer> products, int start) {
+    Path(int store, ArrayList<Integer> products, int start) {
         this.store = store;
         this.products = products;
         this.start = start;
 
-        this.setNodesVisited();
+        for (int i = 0; i < products.size(); i++) {
+            this.setNodesVisited(products.get(i), store);
+        }
     }
 
-    public void setNodesVisited() {
+    public void setNodesVisited(final int productId, final int storeId) {
         //TODO call for a query that uses the product information and store to find the nodes visited
             //First node must be a start point
         //TODO Also be able to get route information
-        //Get the email and password entered by the user
-        final String email = emailView.getText().toString();
-        final String password = passwordView.getText().toString();
-
-        //Hash the password
 
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(this);
         String responseValue = null;
 
 
-        String url = "http://34.238.160.248/checkLogin.php";
+        String url = "http://34.238.160.248/getNode.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -70,9 +68,11 @@ public class Path {
                         Log.d("Response", response);
 
                         if(response.length() > 1){
-                            goToListView(view);
+                            Integer temp = Integer.parseInt(response);
+                            if (!nodesVisited.contains(temp)) {
+                                nodesVisited.add(temp);
+                            }
                         }
-
                     }
                 },
                 new Response.ErrorListener() {
@@ -85,9 +85,12 @@ public class Path {
         ) {
             @Override
             protected Map<String, String> getParams() {
+                String Product_PID = "" + productId;
+                String Store_SID = "" + storeId;
+
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("email", email);
-                params.put("password", password);
+                params.put("Product_PID", Product_PID);
+                params.put("Store_SID", Store_SID);
 
                 return params;
             }

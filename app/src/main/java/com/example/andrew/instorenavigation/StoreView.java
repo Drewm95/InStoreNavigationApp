@@ -14,7 +14,6 @@ public class StoreView {
 
     StoreView (ArrayList<Integer> products) {
         this.products = products;
-
     }
 
     //Method will use a query to select the stores that hold all of the products.
