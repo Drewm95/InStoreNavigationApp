@@ -20,7 +20,7 @@ import java.util.Map;
  * calculate a path.
  */
 
-public class Path extends Activity{
+public class Path extends Activity implements Interactor{
 
     private int nodeCount;
     private int[][] nodeEdgeData;
@@ -45,11 +45,11 @@ public class Path extends Activity{
         this.start = start;
 
         for (int i = 0; i < products.size(); i++) {
-            this.setNodesVisited(products.get(i), store);
+            this.query("" + products.get(i), "" + store);
         }
     }
 
-    public void setNodesVisited(final int productId, final int storeId) {
+    public void query(final String productId, final String storeId) {
 
 
         //Connect to the database and authenticate
@@ -83,8 +83,8 @@ public class Path extends Activity{
         ) {
             @Override
             protected Map<String, String> getParams() {
-                String Product_PID = "" + productId;
-                String Store_SID = "" + storeId;
+                String Product_PID = productId;
+                String Store_SID = storeId;
 
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Product_PID", Product_PID);

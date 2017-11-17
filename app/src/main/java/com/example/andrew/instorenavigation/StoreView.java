@@ -19,7 +19,7 @@ import java.util.Map;
  * Created by Matthew Catron on 11/17/2017.
  */
 
-public class StoreView extends Activity {
+public class StoreView extends Activity implements Interactor {
     private int listID;
     private static ArrayList<Integer> products;
     private static String store;
@@ -28,12 +28,14 @@ public class StoreView extends Activity {
     StoreView (ArrayList<Integer> products, int listID) {
         this.products = products;
         this.listID = listID;
+
+        query("" + listID, "" + listID);
     }
 
     //Method will use a query to select the stores that hold all of the products.
         //Will then change the display to show all the store names with a button to
         //navigate.
-    private void getStores() {
+    public void query(final String listID, final String filler) {
         ArrayList<String> stores;
         RequestQueue queue = Volley.newRequestQueue(this);
         String responseValue = null;
