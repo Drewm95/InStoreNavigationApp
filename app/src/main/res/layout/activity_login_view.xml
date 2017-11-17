@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app=""
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_login_view"
     android:layout_width="match_parent"
@@ -10,8 +11,50 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.andrew.instorenavigation.LoginView">
 
-    <TextView
+    <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:inputType="textPassword"
+        android:ems="10"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/editText"
+        android:hint="Password"
+        android:singleLine="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:ems="10"
+        android:layout_above="@+id/editText"
+        android:layout_alignStart="@+id/editText"
+        android:layout_marginBottom="25dp"
+        android:id="@+id/editText2"
+        android:hint="Email"
+        android:singleLine="true" />
+
+    <TextView
+        android:text="In Store Navigation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textSize="30sp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:text="Login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="65dp"
+        android:id="@+id/loginButton"
+        android:onClick="AuthenticateUserDetails (LoginView)"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:background="@android:color/holo_green_light"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="100dp"
+        android:layout_marginRight="100dp" />
 </RelativeLayout>
