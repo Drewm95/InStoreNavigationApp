@@ -8,7 +8,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoginView">
+        <activity android:name=".ListView">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -16,7 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".NavigationView" />
-        <activity android:name=".ListView" />
+        <activity android:name=".LoginView" />
         <activity android:name=".EditListView"></activity>
         <activity android:name=".Interactor"></activity>
     </application>

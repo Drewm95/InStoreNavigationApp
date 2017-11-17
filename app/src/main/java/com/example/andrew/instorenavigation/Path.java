@@ -1,7 +1,17 @@
 package com.example.andrew.instorenavigation;
 
+import android.util.Log;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.util.ArrayList;
-import java.util.StringJoiner;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Andrew on 11/9/17.
@@ -12,18 +22,77 @@ import java.util.StringJoiner;
 public class Path {
 
     private int nodeCount;
-    private ArrayList<String[]> nodeEdgeData;
+    private int[][] nodeEdgeData;
+    private int start;
+
+    private ArrayList<Integer> nodesVisited;
+    private ArrayList<Integer> products;
+    private String store;
+
+    //Every even number will be a diatance, and every odd number will be a direction associated with
+        //the distance before hand.
+    private ArrayList<Integer> route;
 
     //The data from the JSON file in the database will return an arraylist of the following format:
     //      {[NaX, NaY, NbX, NbY, L],[NbX, NbY, NcX, NcY, L],...}
     //Which is listing the X and Y of connected nodes and the length between them. The collection
     // contains the nodes needed to travel between a start and end node.
 
-    Path(ArrayList<String[]> nodeEdgeData) {
-        this.nodeEdgeData = nodeEdgeData;
+    Path(String store, ArrayList<Integer> products, int start) {
+        this.store = store;
+        this.products = products;
+        this.start = start;
+
+        this.setNodesVisited();
     }
 
-    public void run() {
+    public void setNodesVisited() {
+        //TODO call for a query that uses the product information and store to find the nodes visited
+            //First node must be a start point
+        //TODO Also be able to get route information
+        //Get the email and password entered by the user
+        final String email = emailView.getText().toString();
+        final String password = passwordView.getText().toString();
+
+        //Hash the password
+
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/checkLogin.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() > 1){
+                            goToListView(view);
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("email", email);
+                params.put("password", password);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
 
         this.calculatePath();
     }
@@ -43,7 +112,7 @@ public class Path {
         Node[] nodes = new Node[nodeCount];
 
         for (int i = 0; i < nodeCount; i++) {
-            nodes[i] = new Node();
+            nodes[i] = new Node(i);
         }
 
         //Fill matrix with edge values
@@ -51,13 +120,12 @@ public class Path {
             parent[i] = 0;
             for (int j = i; j < nodeCount; j++) {
                 matrix[i][j] = 0;
-                //If edge is of 0, forced it to be inifinity (relatively large int)
                 if (matrix[i][j] == 0) {
-                    matrix[i][j] = 999;
+                    matrix[i][j] = -1;
                 }
                 //if nodes were the same, then there was no edge
                 if (i == j) {
-                    matrix[i][j] = 999;
+                    matrix[i][j] = -1;
                     //inverse relationship held the same edge value (dist between i and j == dist between j and i)
                 } else {
                     matrix[j][i] = matrix[i][j];
@@ -76,12 +144,12 @@ public class Path {
 
         //Continue loop until path is found
         while (edgeCount - 1 < nodeCount) {
-            min = 999;
+            min = -1;
             for(int i = 0; i < nodeCount; i++) {
                 if (!nodes[i].atCap()) {
                     for(int j = i; j < nodeCount; j++) {
                         if (!nodes[j].atCap()) {
-                            if (matrix[i][j] < min) {
+                            if (matrix[i][j] < min || min == -1) {
                                 min = matrix[i][j];
                                 u = i;
                                 v = j;
@@ -93,7 +161,7 @@ public class Path {
             int temp1 = u;
             int temp2 = v;
 
-            matrix[u][v] = matrix[v][u] = 999;
+            matrix[u][v] = matrix[v][u] = -1;
 
             //These while loops are used to find the root of the tree and set it as the parent of the newly connected node
             //this is used to find the root element of each node tree
@@ -114,5 +182,11 @@ public class Path {
                 parent[v] = u;
             }
         }
+        this.parseData();
+    }
+
+    private void parseData(){
+        //TODO Feed data and switch to NavigationView and
+
     }
 }

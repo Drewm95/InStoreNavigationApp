@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Node {
 
     private ArrayList<Integer> edges;
-
+    private int id;
     //Limit will always be two because we only care to come to the node once, and leave the node once,
     //barring the start node (left once) and the end node (come to once).
     private int limit = 2;
@@ -24,7 +24,14 @@ public class Node {
     private ArrayList<Node> connections;
 
     //Instantiate the node with the limit (2) and create the edge and connection lists
-    Node() {
+    Node(int id) {
+
+        //starting node will need a limit one
+        this.id = id;
+        if(id == 0) {
+            this.limit = 1;
+        }
+
         edges = new ArrayList<Integer>();
         connections = new ArrayList<Node>();
     }
