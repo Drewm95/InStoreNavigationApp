@@ -11,17 +11,17 @@ import java.util.ArrayList;
 
 public class Interactor {
 
-    //Will store a user's list into the database
+    //Will store a user's itemlist into the database
     public static void sendList() {
 
     }
 
-    //Edit list in current database
+    //Edit itemlist in current database
     public static void  updateList(int LID) {
 
     }
 
-    //Will get a list from the database and return it to the user.
+    //Will get a itemlist from the database and return it to the user.
     public String[] getList(int LID) {
         return null;
     }
