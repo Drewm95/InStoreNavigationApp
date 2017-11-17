@@ -20,12 +20,12 @@ import java.util.Map;
  */
 
 public class StoreView extends Activity {
-    private String listID;
+    private int listID;
     private static ArrayList<Integer> products;
     private static String store;
     private int storeID;
 
-    StoreView (ArrayList<Integer> products, String listID) {
+    StoreView (ArrayList<Integer> products, int listID) {
         this.products = products;
         this.listID = listID;
     }
@@ -63,8 +63,8 @@ public class StoreView extends Activity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("listID", listID);
-                params.put("listID", listID);
+                params.put("listID", "" + listID);
+                params.put("listID", "" + listID);
 
                 return params;
             }
