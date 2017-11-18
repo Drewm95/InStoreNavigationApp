@@ -19,6 +19,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ public class LoginView extends Activity implements View.OnClickListener{
     TextView emailView;
     TextView passwordView;
     Button loginButton;
+
 
 
     @Override
@@ -47,11 +49,23 @@ public class LoginView extends Activity implements View.OnClickListener{
         loginButton.setOnClickListener(this);
     }
 
+    ArrayList<Integer> arrayList = new ArrayList<Integer>();
 
     @Override
     public void onClick(View v) {
         if(v == loginButton)
         AuthenticateLogin(v);
+
+
+        /* create arraylist
+        arrayList.add(1);
+        arrayList.add(2);
+        arrayList.add(3);
+
+        Path path = new Path(1,arrayList,1, this);
+        //path.query("1","1", this);
+        */
+
     }
 
 
@@ -68,7 +82,7 @@ public class LoginView extends Activity implements View.OnClickListener{
         //Hash the password
 
         //Connect to the database and authenticate
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         String responseValue = null;
 
 

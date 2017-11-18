@@ -1,6 +1,7 @@
 package com.example.andrew.instorenavigation;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -39,21 +40,21 @@ public class Path extends Activity implements Interactor{
     //Which is listing the X and Y of connected nodes and the length between them. The collection
     // contains the nodes needed to travel between a start and end node.
 
-    Path(int store, ArrayList<Integer> products, int start) {
+    Path(int store, ArrayList<Integer> products, int start, Context context) {
         this.store = store;
         this.products = products;
         this.start = start;
 
         for (int i = 0; i < products.size(); i++) {
-            this.query("" + products.get(i), "" + store);
+            this.query("" + products.get(i), "" + store, context);
         }
     }
 
-    public void query(final String productId, final String storeId) {
+    public void query(final String productId, final String storeId, Context context) {
 
 
         //Connect to the database and authenticate
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = Volley.newRequestQueue(context);
         String responseValue = null;
 
 
@@ -139,6 +140,7 @@ public class Path extends Activity implements Interactor{
             System.out.println();
             for (int j = 0; j < nodeCount; j++) {
                 System.out.printf("%4s", matrix[i][j]);
+                Log.d("Path", "" + matrix[i][j]);
             }
         }
         System.out.println("\n");
@@ -152,13 +154,14 @@ public class Path extends Activity implements Interactor{
                         if (!nodes[j].atCap()) {
                             if (matrix[i][j] < min || min == -1) {
                                 min = matrix[i][j];
-                                u = i;
-                                v = j;
+                                //u = i;
+                                //v = j;
                             }
                         }
                     }
                 }
             }
+            /*
             int temp1 = u;
             int temp2 = v;
 
@@ -182,8 +185,8 @@ public class Path extends Activity implements Interactor{
                 }
                 parent[v] = u;
             }
+            */
         }
-        this.parseData();
     }
 
     private void parseData(){

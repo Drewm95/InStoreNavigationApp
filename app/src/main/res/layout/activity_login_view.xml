@@ -45,15 +45,16 @@
         android:layout_centerHorizontal="true" />
 
     <Button
-        android:text="Login"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="65dp"
         android:id="@+id/loginButton"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:background="@android:color/holo_green_light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="65dp"
         android:layout_marginLeft="100dp"
-        android:layout_marginRight="100dp" />
+        android:layout_marginRight="100dp"
+        android:background="@android:color/holo_green_light"
+        android:onClick="goToListView (LoginView)"
+        android:text="Login" />
 </RelativeLayout>

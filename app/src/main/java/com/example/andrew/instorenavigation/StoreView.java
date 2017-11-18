@@ -1,6 +1,7 @@
 package com.example.andrew.instorenavigation;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.view.View;
 
@@ -76,6 +77,11 @@ public class StoreView extends Activity implements Interactor {
 
     //TODO Create a button that will set the store to pass to Path class, an then redirect to NavigationView
     public void onClick(View v) {
+
+    }
+
+    @Override
+    public void query(String key1, String keys2, Context context) {
 
     }
 }
