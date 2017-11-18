@@ -3,6 +3,7 @@ package com.example.andrew.instorenavigation;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -42,12 +43,13 @@ public class ListView extends AppCompatActivity implements Interactor {
     android.widget.ListView lstTask;
     //private int userID;
     private String userID;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.itemlist);
-
+        context = this;
         dbHelper = new DbHelper(this);
 
         lstTask = (android.widget.ListView)findViewById(R.id.lstTask);
@@ -57,6 +59,7 @@ public class ListView extends AppCompatActivity implements Interactor {
         //Bundle extras = loginID.getExtras();
        // userID = extras.getString("userID");
         loadTaskList();
+
     }
 
     private void loadTaskList() {
@@ -97,7 +100,7 @@ public class ListView extends AppCompatActivity implements Interactor {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String task = String.valueOf(taskEditText.getText());
-                                query(task, userID);
+                                query(task, userID, context);
                                 dbHelper.insertNewTask(task);
                                 loadTaskList();
                             }
@@ -143,9 +146,9 @@ public class ListView extends AppCompatActivity implements Interactor {
     }
 
     @Override
-    public void query(final String key1, final String key2) {
+    public void query(final String key1, final String key2, Context context) {
         //Connect to the database and authenticate
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = Volley.newRequestQueue(context);
         String responseValue = null;
 
 
@@ -174,8 +177,8 @@ public class ListView extends AppCompatActivity implements Interactor {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("listName", key1);
-                params.put("userID", key2);
+                params.put("Name", key1);
+                params.put("Users_UserID", key2);
 
                 return params;
             }

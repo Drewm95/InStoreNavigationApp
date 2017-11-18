@@ -28,7 +28,7 @@ public class LoginView extends Activity implements View.OnClickListener{
     TextView emailView;
     TextView passwordView;
     Button loginButton;
-    private int userID;
+    private String userID;
 
 
     @Override
@@ -82,7 +82,7 @@ public class LoginView extends Activity implements View.OnClickListener{
                         Log.d("Response", response);
 
                         if(response.length() >= 1){
-                            userID = Integer.parseInt(response);
+                            userID = (response);
                             goToListView(view);
                         }
 
