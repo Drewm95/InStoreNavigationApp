@@ -35,7 +35,7 @@ import java.util.Map;
  * https://www.youtube.com/watch?v=RXtj4TxMmW0
  */
 
-public class EditListView extends AppCompatActivity implements Interactor {
+public class EditListView extends AppCompatActivity {
 
     DbHelper dbHelper;
     ArrayAdapter<String> mAdapter;
@@ -144,7 +144,7 @@ public class EditListView extends AppCompatActivity implements Interactor {
 
     }
 
-    @Override
+
     public void query(final String key1, final String key2, Context context) {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);

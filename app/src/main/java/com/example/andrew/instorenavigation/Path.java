@@ -21,7 +21,7 @@ import java.util.Map;
  * calculate a path.
  */
 
-public class Path extends Activity implements Interactor{
+public class Path extends Activity{
 
     private int nodeCount;
     private int[][] nodeEdgeData;

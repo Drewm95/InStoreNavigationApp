@@ -1,7 +1,6 @@
 package com.example.andrew.instorenavigation;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
 import android.view.View;
 
@@ -20,7 +19,7 @@ import java.util.Map;
  * Created by Matthew Catron on 11/17/2017.
  */
 
-public class StoreView extends Activity implements Interactor {
+public class StoreView extends Activity {
     private int listID;
     private static ArrayList<Integer> products;
     private static String store;
@@ -80,8 +79,4 @@ public class StoreView extends Activity implements Interactor {
 
     }
 
-    @Override
-    public void query(String key1, String keys2, Context context) {
-
-    }
 }
