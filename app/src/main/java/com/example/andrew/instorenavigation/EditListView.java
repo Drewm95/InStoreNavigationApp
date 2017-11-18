@@ -1,7 +1,11 @@
+//***********************************************
 package com.example.andrew.instorenavigation;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AlertDialog;
@@ -13,37 +17,60 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class EditListView extends AppCompatActivity {
 
-    /*DbHelper dbHelper;
+/**
+ * This code was created with the help of
+ * https://www.youtube.com/watch?v=RXtj4TxMmW0
+ */
+
+public class EditListView extends AppCompatActivity implements Interactor {
+
+    DbHelper dbHelper;
     ArrayAdapter<String> mAdapter;
-    ListView innerList;
-*/
+    android.widget.ListView lstTask;
+    //private int userID;
+    private String userID;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.listlist);
+        setContentView(R.layout.itemlist);
+        context = this;
+        dbHelper = new DbHelper(this);
 
-        //dbHelper = new DbHelper(this);
-      //  innerList = (ListView)findViewById(R.id.innerListView);
-       // loadTaskList();
+        lstTask = (android.widget.ListView)findViewById(R.id.lstTask);
+        Intent loginID = getIntent();
+        //userID = Integer.parseInt(loginID.getStringExtra("userID"));
+        userID = loginID.getStringExtra("userID");
+        //Bundle extras = loginID.getExtras();
+        // userID = extras.getString("userID");
+        loadTaskList();
+
     }
 
-    /*private void loadTaskList() {
-        ArrayList<String> innerListItems = dbHelper.getTaskList();
+    private void loadTaskList() {
+        ArrayList<String> taskList = dbHelper.getTaskList();
         if(mAdapter==null){
-            mAdapter = new ArrayAdapter<String>(this,R.layout.listrow,R.id.innertask_title, innerListItems);
-            innerList.setAdapter(mAdapter);
+            mAdapter = new ArrayAdapter<String>(this,R.layout.listrow,R.id.innertask_title,taskList);
+            lstTask.setAdapter(mAdapter);
         }
         else{
             mAdapter.clear();
-            mAdapter.addAll(innerListItems);
+            mAdapter.addAll(taskList);
             mAdapter.notifyDataSetChanged();
         }
     }
@@ -66,13 +93,14 @@ public class EditListView extends AppCompatActivity {
             case R.id.action_add_task:
                 final EditText taskEditText = new EditText(this);
                 AlertDialog dialog = new AlertDialog.Builder(this) //Create prompt to ask if user wants to create a new itemlist
-                        .setTitle("Create New List")
-                        .setMessage("Create this itemlist?") //Prompt message for user
+                        .setTitle("Add New Item?")
+                        .setMessage("") //Prompt message for user
                         .setView(taskEditText) // Allows the view to be edited
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String task = String.valueOf(taskEditText.getText());
+                                query(task, userID, context);
                                 dbHelper.insertNewTask(task);
                                 loadTaskList();
                             }
@@ -107,5 +135,56 @@ public class EditListView extends AppCompatActivity {
         dialog.show();
 
 
-    }*/
+    }
+
+    public void innerList(View view) {
+
+        Intent i = new Intent(this, EditListView.class);
+        startActivity(i);
+
+
+    }
+
+    @Override
+    public void query(final String key1, final String key2, Context context) {
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/InsertList.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() > 1){
+
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Name", key1);
+                params.put("Users_UserID", key2);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
 }
+

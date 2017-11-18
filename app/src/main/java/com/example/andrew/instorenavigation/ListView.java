@@ -44,6 +44,7 @@ public class ListView extends AppCompatActivity implements Interactor {
     //private int userID;
     private String userID;
     private Context context;
+    private String LID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,9 +141,8 @@ public class ListView extends AppCompatActivity implements Interactor {
     public void innerList(View view) {
 
         Intent i = new Intent(this, EditListView.class);
+        i.putExtra("LID", LID);
         startActivity(i);
-
-
     }
 
     @Override
@@ -160,8 +160,8 @@ public class ListView extends AppCompatActivity implements Interactor {
                         // response
                         Log.d("Response", response);
 
-                        if(response.length() > 1){
-
+                        if(response.length() >= 1){
+                            LID = response;
                         }
 
                     }

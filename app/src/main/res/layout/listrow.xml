@@ -7,24 +7,26 @@
 
     <TextView
         android:id="@+id/innertask_title"
-        android:text="Example"
-        android:textSize="20sp"
+        android:layout_width="99dp"
+        android:layout_height="35dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:text="Example"
+        android:textSize="20sp"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="16dp" />
 
 
     <Button
         android:id="@+id/btnDelete"
-        android:text="DELETE"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:onClick="deleteTask"
-        tools:layout_editor_absoluteY="16dp"
-        tools:layout_editor_absoluteX="231dp" />
+        android:text="DELETE"
+        tools:layout_editor_absoluteX="291dp"
+        tools:layout_editor_absoluteY="16dp" />
 
 
 </android.support.constraint.ConstraintLayout>
