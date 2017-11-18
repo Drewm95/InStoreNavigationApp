@@ -25,11 +25,12 @@ public class Path extends Activity{
 
     private int nodeCount;
     private int[][] nodeEdgeData;
-    private int start;
-
     private ArrayList<Integer> nodesVisited;
-    private ArrayList<Integer> products;
-    private int store;
+
+    //Key Values to be passed to a query.
+    private String start;
+    private ArrayList<String> products;
+    private String Store_ID;
 
     //Every even number will be a diatance, and every odd number will be a direction associated with
         //the distance before hand.
@@ -40,13 +41,13 @@ public class Path extends Activity{
     //Which is listing the X and Y of connected nodes and the length between them. The collection
     // contains the nodes needed to travel between a start and end node.
 
-    Path(int store, ArrayList<Integer> products, int start, Context context) {
-        this.store = store;
+    Path(String StoreID, ArrayList<String> products, String start, Context context) {
+        this.Store_ID = StoreID;
         this.products = products;
         this.start = start;
 
         for (int i = 0; i < products.size(); i++) {
-            this.query("" + products.get(i), "" + store, context);
+            this.query("" + products.get(i), "" + StoreID, context);
         }
     }
 

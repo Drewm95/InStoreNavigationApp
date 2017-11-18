@@ -241,8 +241,8 @@ public class NavigationView extends Activity implements SensorEventListener {
         if(turnCode == 1 && Math.abs(azimuth - azumuthStart) >= 90 ) { //left Turn //TODO this just detects a 90 degree turn, does not account for direction.
             navStep++;
             CheckNavigation();
-            //arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-            //arrow.setRotation(270);
+            //navarrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
+            //navarrow.setRotation(270);
         }
         else if(turnCode == 1){
             arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
@@ -251,8 +251,8 @@ public class NavigationView extends Activity implements SensorEventListener {
         if (turnCode == 2 && Math.abs(azimuth - azumuthStart) >= 90 ) { //right turn
             navStep++;
             CheckNavigation();
-            //arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-            //arrow.setRotation(90);
+            //navarrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
+            //navarrow.setRotation(90);
         }
         else if(turnCode == 2){
             arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
@@ -304,7 +304,7 @@ public class NavigationView extends Activity implements SensorEventListener {
 
         }
 
-        //Update the global variables and the arrow indicator
+        //Update the global variables and the navarrow indicator
 
         targetDistance = distance;
         turnCode = tcode;

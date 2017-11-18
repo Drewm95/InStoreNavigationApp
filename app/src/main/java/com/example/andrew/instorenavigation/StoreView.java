@@ -1,6 +1,9 @@
 package com.example.andrew.instorenavigation;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
@@ -19,11 +22,27 @@ import java.util.Map;
  * Created by Matthew Catron on 11/17/2017.
  */
 
-public class StoreView extends Activity {
+public class StoreView extends AppCompatActivity {
     private int listID;
     private static ArrayList<Integer> products;
     private static String store;
     private int storeID;
+
+    private Context context;
+    private String StoreID;
+    private ArrayList<String> products;
+    private String start;
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle("Select Store");
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_store_view);
+        context = this;
+    }
 
     StoreView (ArrayList<Integer> products, int listID) {
         this.products = products;

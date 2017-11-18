@@ -238,8 +238,8 @@ public class Navigation extends Activity implements SensorEventListener {
             mag2.setText(Double.toString(round(pitch,2)));
             mag3.setText(Double.toString(round(roll,2)));
 
-            //rotate the arrow
-            arrow.setRotation((float)azimuth);
+            //rotate the navarrow
+            navarrow.setRotation((float)azimuth);
 
             */
 
