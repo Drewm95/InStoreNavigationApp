@@ -23,7 +23,7 @@ import java.util.Map;
  */
 
 public class StoreView extends AppCompatActivity {
-    private int listID;
+    private String listID;
     private static ArrayList<Integer> products;
     private static String store;
     private int storeID;
@@ -44,7 +44,7 @@ public class StoreView extends AppCompatActivity {
         context = this;
     }
 
-    StoreView (ArrayList<Integer> products, int listID) {
+    StoreView (ArrayList<String> products, String listID) {
         this.products = products;
         this.listID = listID;
 
@@ -94,7 +94,8 @@ public class StoreView extends AppCompatActivity {
     }
 
     //TODO Create a button that will set the store to pass to Path class, an then redirect to NavigationView
-    public void onClick(View v) {
+    public void path(View v) {
+        Path path;
 
     }
 
