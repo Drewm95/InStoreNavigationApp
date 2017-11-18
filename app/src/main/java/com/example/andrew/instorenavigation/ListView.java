@@ -229,7 +229,7 @@ public class ListView extends AppCompatActivity {
                 return params;
             }
         };
-        Log.d("QUEUE", postRequest.toString());
+
 
         queue.add(postRequest);
     }
