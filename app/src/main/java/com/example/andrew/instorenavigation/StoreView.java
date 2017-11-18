@@ -1,14 +1,29 @@
 package com.example.andrew.instorenavigation;
 
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Matthew Catron on 11/17/2017.
  */
 
 public class StoreView extends AppCompatActivity {
-    /*
-    private int listID;
+    private String listID;
     private static ArrayList<Integer> products;
     private static String store;
     private int storeID;
@@ -24,13 +39,12 @@ public class StoreView extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_store_view);
         context = this;
     }
 
-    StoreView (ArrayList<Integer> products, int listID) {
+    StoreView (ArrayList<String> products, String listID) {
         this.products = products;
         this.listID = listID;
 
@@ -80,8 +94,9 @@ public class StoreView extends AppCompatActivity {
     }
 
     //TODO Create a button that will set the store to pass to Path class, an then redirect to NavigationView
-    public void onClick(View v) {
+    public void path(View v) {
+        Path path;
 
     }
- */
+
 }
