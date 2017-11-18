@@ -56,16 +56,6 @@ public class LoginView extends Activity implements View.OnClickListener{
         if(v == loginButton)
         AuthenticateLogin(v);
 
-
-        /* create arraylist
-        arrayList.add(1);
-        arrayList.add(2);
-        arrayList.add(3);
-
-        Path path = new Path(1,arrayList,1, this);
-        //path.query("1","1", this);
-        */
-
     }
 
 
