@@ -55,6 +55,6 @@
         android:layout_marginLeft="100dp"
         android:layout_marginRight="100dp"
         android:background="@android:color/holo_green_light"
-        android:onClick="goToListView (LoginView)"
+        android:onClick="AuthenticateLogin"
         android:text="Login" />
 </RelativeLayout>
