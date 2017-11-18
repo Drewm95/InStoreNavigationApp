@@ -18,7 +18,16 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -26,11 +35,13 @@ import java.util.ArrayList;
  * https://www.youtube.com/watch?v=RXtj4TxMmW0
  */
 
-public class ListView extends Activity {
+public class ListView extends AppCompatActivity implements Interactor {
 
     DbHelper dbHelper;
     ArrayAdapter<String> mAdapter;
     android.widget.ListView lstTask;
+    //private int userID;
+    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +51,11 @@ public class ListView extends Activity {
         dbHelper = new DbHelper(this);
 
         lstTask = (android.widget.ListView)findViewById(R.id.lstTask);
-
+        Intent loginID = getIntent();
+        //userID = Integer.parseInt(loginID.getStringExtra("userID"));
+        userID = loginID.getStringExtra("userID");
+        //Bundle extras = loginID.getExtras();
+       // userID = extras.getString("userID");
         loadTaskList();
     }
 
@@ -82,6 +97,7 @@ public class ListView extends Activity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String task = String.valueOf(taskEditText.getText());
+                                query(task, userID);
                                 dbHelper.insertNewTask(task);
                                 loadTaskList();
                             }
@@ -125,5 +141,47 @@ public class ListView extends Activity {
 
 
     }
+
+    @Override
+    public void query(final String key1, final String key2) {
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/InsertList.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() > 1){
+
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("listName", key1);
+                params.put("userID", key2);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
 }
 

@@ -20,22 +20,22 @@ import java.util.ArrayList;
 
 public class EditListView extends AppCompatActivity {
 
-    DbHelper dbHelper;
+    /*DbHelper dbHelper;
     ArrayAdapter<String> mAdapter;
     ListView innerList;
-
+*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.listlist);
 
-        dbHelper = new DbHelper(this);
-        innerList = (ListView)findViewById(R.id.innerListView);
-        loadTaskList();
+        //dbHelper = new DbHelper(this);
+      //  innerList = (ListView)findViewById(R.id.innerListView);
+       // loadTaskList();
     }
 
-    private void loadTaskList() {
+    /*private void loadTaskList() {
         ArrayList<String> innerListItems = dbHelper.getTaskList();
         if(mAdapter==null){
             mAdapter = new ArrayAdapter<String>(this,R.layout.listrow,R.id.innertask_title, innerListItems);
@@ -107,5 +107,5 @@ public class EditListView extends AppCompatActivity {
         dialog.show();
 
 
-    }
+    }*/
 }
