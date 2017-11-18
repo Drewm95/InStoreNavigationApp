@@ -1,28 +1,13 @@
 package com.example.andrew.instorenavigation;
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Matthew Catron on 11/17/2017.
  */
 
 public class StoreView extends AppCompatActivity {
+    /*
     private int listID;
     private static ArrayList<Integer> products;
     private static String store;
@@ -39,6 +24,7 @@ public class StoreView extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_store_view);
         context = this;
@@ -97,5 +83,5 @@ public class StoreView extends AppCompatActivity {
     public void onClick(View v) {
 
     }
-
+ */
 }

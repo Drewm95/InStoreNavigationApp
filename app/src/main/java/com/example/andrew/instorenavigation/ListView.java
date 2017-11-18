@@ -105,7 +105,7 @@ public class ListView extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String task = String.valueOf(taskEditText.getText());
-                                query(task, userID, context);
+                                addList(task, userID, context);
                                 dbHelper.insertNewTask(task);
                                 loadTaskList();
                             }
@@ -130,6 +130,8 @@ public class ListView extends AppCompatActivity {
                         TextView taskTextView = (TextView)parent.findViewById(R.id.task_title);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
+
+                        deleteList(userID, task, context);
                         dbHelper.deleteTask(task);
 
                         loadTaskList();
@@ -150,7 +152,7 @@ public class ListView extends AppCompatActivity {
     }
 
 
-    public void query(final String key1, final String key2, Context context) {
+    public void addList(final String key1, final String key2, Context context) {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
         String responseValue = null;
@@ -187,6 +189,48 @@ public class ListView extends AppCompatActivity {
                 return params;
             }
         };
+        queue.add(postRequest);
+    }
+
+    public void deleteList(final String Users_UserID, final String Name, Context context) {
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/DeleteList.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() >= 1){
+
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Users_UserID", Users_UserID);
+                params.put("Name", Name);
+
+                return params;
+            }
+        };
+        Log.d("QUEUE", postRequest.toString());
+
         queue.add(postRequest);
     }
 
