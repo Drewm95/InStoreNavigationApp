@@ -2,7 +2,6 @@
 package com.example.andrew.instorenavigation;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -48,7 +47,7 @@ public class EditListView extends AppCompatActivity implements Interactor {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.itemlist);
+        setContentView(R.layout.activity_edit_list_view);
         context = this;
         dbHelper = new DbHelper(this);
 
@@ -65,7 +64,7 @@ public class EditListView extends AppCompatActivity implements Interactor {
     private void loadTaskList() {
         ArrayList<String> taskList = dbHelper.getTaskList();
         if(mAdapter==null){
-            mAdapter = new ArrayAdapter<String>(this,R.layout.listrow,R.id.innertask_title,taskList);
+            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.innertask_title,taskList);
             lstTask.setAdapter(mAdapter);
         }
         else{
@@ -114,7 +113,7 @@ public class EditListView extends AppCompatActivity implements Interactor {
     }
 
     //Method that will be used by the delete button
-    public void deleteTask(final View view){ //Method used to delete the itemrow selected
+    public void deleteTask(final View view){ //Method used to delete the generate_list_view selected
         AlertDialog dialog = new AlertDialog.Builder(this) //Create prompt to ask if user wants to delete a itemlist
                 .setMessage("Do you want to delete this itemlist?") //Prompt message for user
                 .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
