@@ -53,4 +53,12 @@ public class Node {
     public boolean atCap() {
         return atCap;
     }
+
+    public ArrayList<Node> getConnections() {
+        return connections;
+    }
+
+    public int getId() {
+        return this.id;
+    }
 }

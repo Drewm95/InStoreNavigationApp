@@ -70,7 +70,7 @@ public class ListView extends AppCompatActivity {
     private void loadTaskList() {
         ArrayList<String> taskList = dbHelper.getTaskList();
         if(mAdapter==null){
-            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_list_view,R.id.task_title,taskList);
+            //mAdapter = new ArrayAdapter<String>(this,R.layout.generate_list_view,R.id.task_title,taskList);
             lstTask.setAdapter(mAdapter);
         }
         else{
@@ -125,7 +125,7 @@ public class ListView extends AppCompatActivity {
                 .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+/*
                         View parent = (View)view.getParent();
                         TextView taskTextView = (TextView)parent.findViewById(R.id.task_title);
                         Log.e("String", (String) taskTextView.getText());
@@ -133,7 +133,7 @@ public class ListView extends AppCompatActivity {
 
                         deleteList(userID, task, context);
                         dbHelper.deleteTask(task);
-
+*/
                         loadTaskList();
                     }
                 })

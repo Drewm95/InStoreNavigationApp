@@ -64,7 +64,7 @@ public class EditListView extends AppCompatActivity {
     private void loadTaskList() {
         ArrayList<String> taskList = dbHelper.getTaskList();
         if(mAdapter==null){
-            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.innertask_title,taskList);
+            //mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.innertask_title,taskList);
             lstTask.setAdapter(mAdapter);
         }
         else{
@@ -120,12 +120,12 @@ public class EditListView extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        View parent = (View)view.getParent();
+                        /*View parent = (View)view.getParent();
                         TextView taskTextView = (TextView)parent.findViewById(R.id.innertask_title);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
                         dbHelper.deleteTask(task);
-
+                        */
                         loadTaskList();
                     }
                 })

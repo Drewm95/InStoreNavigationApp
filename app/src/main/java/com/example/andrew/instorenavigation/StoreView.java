@@ -24,7 +24,6 @@ import java.util.Map;
 
 public class StoreView extends AppCompatActivity {
     private String listID;
-    private static ArrayList<Integer> products;
     private static String store;
     private int storeID;
 
@@ -51,7 +50,7 @@ public class StoreView extends AppCompatActivity {
         query("" + listID, "" + listID);
     }
 
-    //Method will use a query to select the stores that hold all of the products.
+    //Method will use a queryNodes to select the stores that hold all of the products.
         //Will then change the display to show all the store names with a button to
         //navigate.
     public void query(final String listID, final String filler) {

@@ -26,11 +26,13 @@ public class Path extends Activity{
     private int nodeCount;
     private int[][] nodeEdgeData;
     private ArrayList<Integer> nodesVisited;
+    private Node[] nodes;
 
-    //Key Values to be passed to a query.
+    //Key Values to be passed to queryNodes.
     private String start;
     private ArrayList<String> products;
     private String Store_ID;
+    private Context context;
 
     //Every even number will be a diatance, and every odd number will be a direction associated with
         //the distance before hand.
@@ -45,14 +47,25 @@ public class Path extends Activity{
         this.Store_ID = StoreID;
         this.products = products;
         this.start = start;
+        this.context = context;
+        this.nodesVisited = new ArrayList<>();
 
+
+        nodesVisited.add(Integer.parseInt(start));
+        nodeCount++;
+
+        String productIDs= "";
         for (int i = 0; i < products.size(); i++) {
-            this.query("" + products.get(i), "" + StoreID, context);
+            if (i != products.size()-1) {
+                productIDs += products.get(i) + ",";
+            } else {
+                productIDs += products.get(i);
+            }
         }
+        queryNodes(productIDs, StoreID, context);
     }
 
-    public void query(final String productId, final String storeId, Context context) {
-
+    private void queryNodes(final String productIds, final String storeId, Context context) {
 
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -67,11 +80,8 @@ public class Path extends Activity{
                         // response
                         Log.d("Response", response);
 
-                        if(response.length() > 1){
-                            Integer temp = Integer.parseInt(response);
-                            if (!nodesVisited.contains(temp)) {
-                                nodesVisited.add(temp);
-                            }
+                        if(response.length() >= 1){
+                            parseNodes(response);
                         }
                     }
                 },
@@ -85,26 +95,103 @@ public class Path extends Activity{
         ) {
             @Override
             protected Map<String, String> getParams() {
-                String Product_PID = productId;
+                String Product_PIDs = productIds;
                 String Store_SID = storeId;
 
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Product_PID", Product_PID);
+                params.put("Product_PIDs", Product_PIDs);
                 params.put("Store_SID", Store_SID);
 
                 return params;
             }
         };
         queue.add(postRequest);
+    }
 
-        this.calculatePath();
+    private void queryEdges(final String NodeIDs, final String storeId, Context context) {
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/getNode.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() >= 1){
+                            parseEdges(response);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                String Store_SID = storeId;
+
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Node_IDs", NodeIDs);
+                params.put("Store_SID", Store_SID);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+    private void queryPath(final String Node_IDs, final String storeId, Context context) {
+
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/getNode.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() >= 1){
+                            parseDetailedPath(response);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Node_IDs", Node_IDs);
+                params.put("Store_SID", storeId);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
     }
 
     //int limit is the degree limitation (in our case, always 2)
     private void calculatePath() {
-
-        //generate a matrix to store the nodes and distance in
-        int[][] matrix = new int[this.nodeCount][this.nodeCount];
 
         int[] parent = new int[this.nodeCount];
         int min;
@@ -112,36 +199,26 @@ public class Path extends Activity{
         int v = 0;
         int edgeCount = 0;
 
-        Node[] nodes = new Node[nodeCount];
+        nodes = new Node[nodeCount];
+
+        //Start node will be the parent to everything, thusly not having a parent
+        parent[0] = -1;
+
+        //All other nodes are not connected, parent of -1
+        for (int i = 1; i < nodeCount-1; i++) {
+            parent[i] = -1;
+        }
 
         for (int i = 0; i < nodeCount; i++) {
             nodes[i] = new Node(i);
-        }
-
-        //Fill matrix with edge values
-        for (int i = 0; i < nodeCount; i++) {
-            parent[i] = 0;
-            for (int j = i; j < nodeCount; j++) {
-                matrix[i][j] = 0;
-                if (matrix[i][j] == 0) {
-                    matrix[i][j] = -1;
-                }
-                //if nodes were the same, then there was no edge
-                if (i == j) {
-                    matrix[i][j] = -1;
-                    //inverse relationship held the same edge value (dist between i and j == dist between j and i)
-                } else {
-                    matrix[j][i] = matrix[i][j];
-                }
-            }
         }
 
         //Print out the matrix
         for (int i = 0; i < nodeCount; i++) {
             System.out.println();
             for (int j = 0; j < nodeCount; j++) {
-                System.out.printf("%4s", matrix[i][j]);
-                Log.d("Path", "" + matrix[i][j]);
+                System.out.printf("%4s", nodeEdgeData[i][j]);
+                Log.d("Path", "" + nodeEdgeData[i][j]);
             }
         }
         System.out.println("\n");
@@ -151,29 +228,29 @@ public class Path extends Activity{
             min = -1;
             for(int i = 0; i < nodeCount; i++) {
                 if (!nodes[i].atCap()) {
-                    for(int j = i; j < nodeCount; j++) {
+                    for(int j = i+1; j < nodeCount; j++) {
                         if (!nodes[j].atCap()) {
-                            if (matrix[i][j] < min || min == -1) {
-                                min = matrix[i][j];
-                                //u = i;
-                                //v = j;
+                            if (nodeEdgeData[i][j] < min || min == -1) {
+                                min = nodeEdgeData[i][j];
+                                u = i;
+                                v = j;
                             }
                         }
                     }
                 }
             }
-            /*
+
             int temp1 = u;
             int temp2 = v;
 
-            matrix[u][v] = matrix[v][u] = -1;
+            nodeEdgeData[u][v] = nodeEdgeData[v][u] = -1;
 
             //These while loops are used to find the root of the tree and set it as the parent of the newly connected node
             //this is used to find the root element of each node tree
-            while(parent[u] != 0) {
+            while(parent[u] != -1) {
                 u = parent[u];
             }
-            while(parent[v] != 0) {
+            while(parent[v] != -1) {
                 v = parent[v];
             }
 
@@ -186,12 +263,83 @@ public class Path extends Activity{
                 }
                 parent[v] = u;
             }
-            */
         }
+
+        //Format path to pass to queryNodes.
+        String nodesFormatted = "";
+        int[] startToFin = new int[nodeCount];
+
+        for (int i = 0; i < nodeCount; i++) {
+            if (i == 0) {
+                nodesFormatted += start;
+                startToFin[i] = Integer.parseInt(start);
+            } else {
+                ArrayList<Node> temp = nodes[i].getConnections();
+
+                if (temp.get(0).getId() == startToFin[i - 1]) {
+                    if (i == nodeCount - 1) {
+                        nodesFormatted += temp.get(1).getId();
+                    } else {
+                        nodesFormatted += temp.get(1).getId() + ",";
+                    }
+                    startToFin[i] = temp.get(1).getId();
+                } else {
+                    if (i == nodeCount - 1) {
+                        nodesFormatted += temp.get(0).getId();
+                    } else {
+                        nodesFormatted += temp.get(0).getId() + ",";
+                    }
+                    startToFin[i] = temp.get(0).getId();
+                }
+            }
+        }
+        queryPath(nodesFormatted, Store_ID, context);
     }
 
-    private void parseData(){
-        //TODO Feed data and switch to NavigationView and
+    private void parseNodes(String nodes){
+        int i = 0;
+
+        for(int j = 0; j < nodes.length(); j++) {
+            if (nodes.substring(j,j) == ",") {
+                Integer temp = Integer.parseInt(nodes.substring(i, j - 1));
+                if (!nodesVisited.contains(temp)) {
+                    nodesVisited.add(temp);
+                    //Store each node ID at it's location in the table
+                    nodeEdgeData[nodeCount][nodeCount] = temp;
+                    nodeCount++;
+                }
+                i = j + 1;
+            }
+        }
+        nodeEdgeData = new int[nodeCount][nodeCount];
+
+        queryEdges(nodes, Store_ID, context);
+    }
+
+    private void parseEdges (String edges){
+        //Edges will be returned in the following manner:
+            //"Node1,Node2,Length,Node1,Node3,Length,Node2,Node3,Length"
+        int [] nodeIDs = new int[nodeCount];
+        ArrayList<Integer> edgeCollection = new ArrayList<>();
+
+        int i = 0;
+        int commaCount = 0;
+
+        for(int j = 0; j < edges.length(); j++) {
+            if (edges.substring(j,j) == ",") {
+                commaCount++;
+                if (commaCount == 3) {
+                    commaCount = 0;
+                    Integer temp = Integer.parseInt(edges.substring(i, j - 1));
+                    edgeCollection.add(temp);
+                }
+                i = j + 1;
+            }
+        }
+        this.calculatePath();
+    }
+
+    private void parseDetailedPath (String path) {
 
     }
 }

@@ -91,7 +91,7 @@ public class DbHelper extends SQLiteOpenHelper {
                         Log.d("Response", response);
 
                         if(response.length() >= 1){
-                            LID = response;
+                           // LID = response;
                         }
 
                     }
