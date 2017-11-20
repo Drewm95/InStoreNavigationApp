@@ -37,7 +37,7 @@ import java.util.Map;
 
 public class EditListView extends AppCompatActivity {
 
-    DbHelper dbHelper;
+    ItemDbHelper itemDbHelper;
     ArrayAdapter<String> mAdapter;
     android.widget.ListView lstTask;
     //private int userID;
@@ -49,12 +49,12 @@ public class EditListView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_list_view);
         context = this;
-        dbHelper = new DbHelper(this);
+        itemDbHelper = new ItemDbHelper(this);
 
-        lstTask = (android.widget.ListView)findViewById(R.id.activity_edit_list_view);
+        lstTask = findViewById(R.id.edit_list);
         Intent loginID = getIntent();
         //userID = Integer.parseInt(loginID.getStringExtra("userID"));
-        userID = loginID.getStringExtra("userID");
+       // userID = loginID.getStringExtra("userID");
         //Bundle extras = loginID.getExtras();
         // userID = extras.getString("userID");
         loadTaskList();
@@ -62,7 +62,7 @@ public class EditListView extends AppCompatActivity {
     }
 
     private void loadTaskList() {
-        ArrayList<String> taskList = (ArrayList<String>) dbHelper.getTaskList();
+        ArrayList<String> taskList = itemDbHelper.getTaskList();
         if(mAdapter==null){
             mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.item_title,taskList);
             lstTask.setAdapter(mAdapter);
@@ -99,8 +99,8 @@ public class EditListView extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String task = String.valueOf(taskEditText.getText());
-                                query(task, userID, context);
-                                dbHelper.insertNewTask(task);
+                               // query(task, userID, context);
+                                itemDbHelper.insertNewTask(task);
                                 loadTaskList();
                             }
                         })
@@ -124,7 +124,7 @@ public class EditListView extends AppCompatActivity {
                         TextView taskTextView = (TextView)parent.findViewById(R.id.item_title);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
-                        dbHelper.deleteTask(task);
+                        itemDbHelper.deleteTask(task);
 
                         loadTaskList();
                     }

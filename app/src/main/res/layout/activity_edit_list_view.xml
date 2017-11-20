@@ -13,7 +13,8 @@
     tools:context="com.example.andrew.instorenavigation.EditListView">
 
     <ListView
-        android:id="@+id/activity_edit_list_view"
+        android:id="@+id/edit_list"
+        style="@style/Widget.AppCompat.ListView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"

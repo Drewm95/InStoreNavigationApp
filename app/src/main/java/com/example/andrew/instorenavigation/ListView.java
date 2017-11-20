@@ -111,7 +111,7 @@ public class ListView extends AppCompatActivity {
                 final EditText taskEditText = new EditText(this);
                 AlertDialog dialog = new AlertDialog.Builder(this) //Create prompt to ask if user wants to create a new itemlist
                         .setTitle("Create New List")
-                        .setMessage("Create this itemlist?") //Prompt message for user
+                        .setMessage("") //Prompt message for user
                         .setView(taskEditText) // Allows the view to be edited
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
