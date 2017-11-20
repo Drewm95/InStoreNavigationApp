@@ -24,10 +24,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+//import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -39,7 +41,8 @@ public class ListView extends AppCompatActivity {
 
     DbHelper dbHelper;
     ArrayAdapter<String> mAdapter;
-    android.widget.ListView lstTask;
+   android.widget.ListView lstNames;
+    //private ListView lstNames;
     //private int userID;
     private String userID;
     private Context context;
@@ -57,26 +60,35 @@ public class ListView extends AppCompatActivity {
         context = this;
         dbHelper = new DbHelper(this);
 
-        lstTask = (android.widget.ListView)findViewById(R.id.lstTask);
+        lstNames = findViewById(R.id.lists);
+        //lstNames = (ListView) findViewById(R.id.lstTask);
         Intent loginID = getIntent();
         //userID = Integer.parseInt(loginID.getStringExtra("userID"));
         userID = loginID.getStringExtra("userID");
         //Bundle extras = loginID.getExtras();
        // userID = extras.getString("userID");
+
         loadTaskList();
         this.setTitle("");
     }
 
     private void loadTaskList() {
-        ArrayList<String> taskList = dbHelper.getTaskList();
-        if(mAdapter==null){
-            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_list_view,R.id.task_title,taskList);
-            lstTask.setAdapter(mAdapter);
+
+        try {
+            ArrayList<String> taskList = dbHelper.getTaskList();
+           if (mAdapter == null) {
+
+               mAdapter = new ArrayAdapter<String>(this, R.layout.generate_list_view, R.id.list_title, taskList);
+                lstNames.setAdapter(mAdapter);
+            } else {
+                mAdapter.clear();
+                mAdapter.addAll(taskList);
+                mAdapter.notifyDataSetChanged();
+            }
+
         }
-        else{
-            mAdapter.clear();
-            mAdapter.addAll(taskList);
-            mAdapter.notifyDataSetChanged();
+        catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -127,7 +139,7 @@ public class ListView extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         View parent = (View)view.getParent();
-                        TextView taskTextView = (TextView)parent.findViewById(R.id.task_title);
+                        TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
 

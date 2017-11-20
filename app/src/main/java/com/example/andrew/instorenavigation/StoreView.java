@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class StoreView extends AppCompatActivity {
     private String listID;
-    private static ArrayList<Integer> products;
+   // private static ArrayList<Integer> products;
     private static String store;
     private int storeID;
 

@@ -51,7 +51,7 @@ public class EditListView extends AppCompatActivity {
         context = this;
         dbHelper = new DbHelper(this);
 
-        lstTask = (android.widget.ListView)findViewById(R.id.lstTask);
+        lstTask = (android.widget.ListView)findViewById(R.id.activity_edit_list_view);
         Intent loginID = getIntent();
         //userID = Integer.parseInt(loginID.getStringExtra("userID"));
         userID = loginID.getStringExtra("userID");
@@ -62,9 +62,9 @@ public class EditListView extends AppCompatActivity {
     }
 
     private void loadTaskList() {
-        ArrayList<String> taskList = dbHelper.getTaskList();
+        ArrayList<String> taskList = (ArrayList<String>) dbHelper.getTaskList();
         if(mAdapter==null){
-            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.innertask_title,taskList);
+            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.item_title,taskList);
             lstTask.setAdapter(mAdapter);
         }
         else{
@@ -121,7 +121,7 @@ public class EditListView extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         View parent = (View)view.getParent();
-                        TextView taskTextView = (TextView)parent.findViewById(R.id.innertask_title);
+                        TextView taskTextView = (TextView)parent.findViewById(R.id.item_title);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
                         dbHelper.deleteTask(task);
@@ -136,13 +136,7 @@ public class EditListView extends AppCompatActivity {
 
     }
 
-    public void innerList(View view) {
 
-        Intent i = new Intent(this, EditListView.class);
-        startActivity(i);
-
-
-    }
 
 
     public void query(final String key1, final String key2, Context context) {

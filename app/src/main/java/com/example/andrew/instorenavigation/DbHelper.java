@@ -119,4 +119,12 @@ public class DbHelper extends SQLiteOpenHelper {
         };
         queue.add(postRequest);
     }
+
+    /*public Cursor getTaskList(){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + DB_TABLE;
+        Cursor data = db.rawQuery(query, null);
+        return data;
+    }*/
 }
