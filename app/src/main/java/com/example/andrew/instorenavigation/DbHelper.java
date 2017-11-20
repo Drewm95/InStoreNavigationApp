@@ -15,7 +15,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,6 +31,8 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final int DB_VER = 1;
     public static final String DB_TABLE="Task";
     public static final String DB_COLUMN = "TaskName";
+    private List<String> items;
+
 
     public DbHelper(Context context) {
         super(context, DB_NAME, null, DB_VER);
@@ -91,7 +95,7 @@ public class DbHelper extends SQLiteOpenHelper {
                         Log.d("Response", response);
 
                         if(response.length() >= 1){
-                            LID = response;
+                            List<String> items = Arrays.asList(response.split("\\s*,\\s*"));
                         }
 
                     }
