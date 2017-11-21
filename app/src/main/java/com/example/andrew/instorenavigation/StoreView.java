@@ -1,6 +1,5 @@
 package com.example.andrew.instorenavigation;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -25,7 +24,7 @@ import java.util.Map;
 public class StoreView extends AppCompatActivity {
     private String listID;
     private static String store;
-    private int storeID;
+    private String storeID;
 
     private Context context;
     private String StoreID;
@@ -47,13 +46,13 @@ public class StoreView extends AppCompatActivity {
         this.products = products;
         this.listID = listID;
 
-        query("" + listID, "" + listID);
+        queryStores("" + listID, "" + listID);
     }
 
     //Method will use a queryNodes to select the stores that hold all of the products.
         //Will then change the display to show all the store names with a button to
         //navigate.
-    public void query(final String listID, final String filler) {
+    public void queryStores(final String listID, final String filler) {
         ArrayList<String> stores;
         RequestQueue queue = Volley.newRequestQueue(this);
         String responseValue = null;
@@ -68,7 +67,7 @@ public class StoreView extends AppCompatActivity {
                         Log.d("Response", response);
 
                         if(response.length() > 1){
-                            //TODO Append the Store to the current list of stores
+                            parseStores(response);
                         }
                     }
                 },
@@ -92,9 +91,50 @@ public class StoreView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
+    public void queryStoreID(final String storeName) {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String responseValue = null;
+
+        String url = "http://34.238.160.248/getStoreID.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() > 1){
+                            parseStores(response);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("listID", "" + listID);
+                params.put("listID", "" + listID);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+    public void parseStores(String stores) {
+        //TODO
+    }
+
     //TODO Create a button that will set the store to pass to Path class, an then redirect to NavigationView
     public void path(View v) {
-        Path path;
+        Path path = new Path(storeID, products, start, context);
 
     }
 

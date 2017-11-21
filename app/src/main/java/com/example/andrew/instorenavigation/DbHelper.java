@@ -80,45 +80,7 @@ public class DbHelper extends SQLiteOpenHelper {
         return taskList;
     }
 
-    public void getList(final String key1, final String key2, Context context) {
-        //Connect to the database and authenticate
-        RequestQueue queue = Volley.newRequestQueue(context);
-        String responseValue = null;
 
-
-        String url = "http://34.238.160.248/GetList.php";
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // response
-                        Log.d("Response", response);
-
-                        if(response.length() >= 1){
-                            List<String> items = Arrays.asList(response.split("\\s*,\\s*"));
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // error
-                        Log.d("Error.Response", error.toString());
-                    }
-                }
-        ) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("Name", key1);
-                params.put("Users_UserID", key2);
-
-                return params;
-            }
-        };
-        queue.add(postRequest);
-    }
 
     /*public Cursor getTaskList(){
 
