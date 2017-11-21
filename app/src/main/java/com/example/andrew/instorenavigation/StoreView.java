@@ -1,11 +1,14 @@
 package com.example.andrew.instorenavigation;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -27,6 +30,7 @@ public class StoreView extends AppCompatActivity {
     private static String store;
     private String storeID;
     String listName;
+    String UID;
 
     private Context context;
     private String StoreID;
@@ -42,22 +46,16 @@ public class StoreView extends AppCompatActivity {
 
         Intent load = getIntent();
         listName = load.getStringExtra("ListName");
+        UID = load.getStringExtra("userID");
         super.setTitle("Select Store: " + listName);
-    }
 
-    /*
-    StoreView (ArrayList<String> products, String listID) {
-        this.products = products;
-        this.listID = listID;
-
-        queryStores("" + listID, "" + listID);
+        queryStores();
     }
-    */
 
     //Method will use a queryNodes to select the stores that hold all of the products.
         //Will then change the display to show all the store names with a button to
         //navigate.
-    public void queryStores(final String listID, final String filler) {
+    public void queryStores() {
         ArrayList<String> stores;
         RequestQueue queue = Volley.newRequestQueue(this);
         String responseValue = null;
@@ -87,8 +85,8 @@ public class StoreView extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("listID", "" + listID);
-                params.put("listID", "" + listID);
+                params.put("listID", listName);
+                params.put("User_ID", UID);
 
                 return params;
             }
@@ -124,8 +122,7 @@ public class StoreView extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("listID", "" + listID);
-                params.put("listID", "" + listID);
+                params.put("StoreName", "" + storeName);
 
                 return params;
             }
@@ -134,13 +131,27 @@ public class StoreView extends AppCompatActivity {
     }
 
     public void parseStores(String stores) {
-        //TODO
+
     }
 
-    //TODO Create a button that will set the store to pass to Path class, an then redirect to NavigationView
-    public void path(View v) {
-        Path path = new Path(storeID, products, start, context);
+    public void path(final View v) {
+        AlertDialog dialog = new AlertDialog.Builder(this) //Create prompt to ask if user wants to delete a itemlist
+                .setMessage("Do you want to navigate this store?") //Prompt message for user
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
+                        View parent = (View)v.getParent();
+                        TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
+                        Log.e("String", (String) taskTextView.getText());
+                        String task = String.valueOf(taskTextView.getText());
+
+                        Path path = new Path(storeID, products, start, context);
+                    }
+                })
+                .setNegativeButton("No",null)
+                .create();
+        dialog.show();
     }
 
 }

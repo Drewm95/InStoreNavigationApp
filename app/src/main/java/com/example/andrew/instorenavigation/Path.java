@@ -358,7 +358,7 @@ public class Path extends Activity{
         }
 
         //Switch view to the navigation view
-        Intent intent = new Intent(this, NavigationView.class);
+        Intent intent = new Intent(context, NavigationView.class);
         intent.putExtra("Path", directions);
         startActivity(intent);
     }
