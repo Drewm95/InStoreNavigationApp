@@ -10,44 +10,32 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.andrew.instorenavigation.NavigationView">
 
-    <ImageView
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/arrowforward"
-        android:id="@+id/arrowView"
-        android:layout_below="@+id/InstructionView"
         android:layout_alignParentStart="true"
-        android:layout_above="@+id/stepLabel" />
+        android:layout_alignParentTop="true">
 
-    <TextView
-        android:text="Steps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="134dp"
-        android:id="@+id/stepLabel"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+        <TextView
+            android:id="@+id/InstructionView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:text="TextView"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
-    <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/stepLabel"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="41dp"
-        android:id="@+id/NavStepCount"
-        android:textSize="30sp" />
+        <ImageView
+            android:id="@+id/arrowView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/InstructionView"
+            android:layout_marginTop="11dp"
+            android:src="@drawable/arrowforward" />
 
-    <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="62dp"
-        android:id="@+id/InstructionView"
-        />
+    </RelativeLayout>
 
 
 </RelativeLayout>
