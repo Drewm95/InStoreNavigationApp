@@ -60,6 +60,7 @@ public class EditListView extends AppCompatActivity {
         }
         if(loginID.hasExtra("ListName")){
             listName = loginID.getStringExtra("ListName");
+            super.setTitle(listName);
         }
         //TODO Add an error message if the extras are not present and kick user back to list view
 
