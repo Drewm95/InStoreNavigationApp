@@ -142,8 +142,6 @@ public class ListView extends AppCompatActivity {
                 .setNegativeButton("Cancel",null)
                 .create();
         dialog.show();
-
-
     }
 
     public void innerList(View view) {
@@ -169,7 +167,6 @@ public class ListView extends AppCompatActivity {
         i.putExtra("UserID", userID);
         startActivity(i);
     }
-
 
     public void addList(final String key1, final String key2, Context context) {
         //Connect to the database and authenticate
