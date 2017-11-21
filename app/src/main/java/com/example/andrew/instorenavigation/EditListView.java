@@ -75,8 +75,10 @@ public class EditListView extends AppCompatActivity {
             lstTask.setAdapter(mAdapter);//Populates the contents of the EditListView
         }
         else{
-            mAdapter.clear();
-            mAdapter.addAll(items);
+            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.item_title,items);
+            lstTask.setAdapter(mAdapter);//Populates the contents of the EditListView
+           // mAdapter.clear();
+          //  mAdapter.addAll(items);
             mAdapter.notifyDataSetChanged();
         }
     }
@@ -107,8 +109,8 @@ public class EditListView extends AppCompatActivity {
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                String task = String.valueOf(taskEditText.getText()); //Gets the string the user has entered
-                                addItems(listName,userID,task, context);//Adds items to the database
+                                String item = String.valueOf(taskEditText.getText()); //Gets the string the user has entered
+                                addItems(listName,userID,item, context);//Adds items to the database
                                // queryItems(listName, userID, context);
 
 
@@ -205,7 +207,7 @@ public class EditListView extends AppCompatActivity {
         String responseValue = null;
 
 
-        String url = "http://34.238.160.248/DeleteList.php";
+        String url = "http://34.238.160.248/DeleteContent.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -233,6 +235,7 @@ public class EditListView extends AppCompatActivity {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Users_UserID", Users_UserID);
                 params.put("List_Name", listName);
+                params.put("Product_Name", item);
 
 
                 return params;
