@@ -41,11 +41,9 @@ import java.util.concurrent.ExecutionException;
 
 public class ListView extends AppCompatActivity {
 
-    DbHelper dbHelper;
     ArrayAdapter<String> mAdapter;
-   android.widget.ListView lstNames;
-    //private ListView lstNames;
-    //private int userID;
+    android.widget.ListView lstNames;
+
     private String userID;
     private Context context;
     private String LID;
@@ -61,16 +59,11 @@ public class ListView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_view);
         context = this;
-        dbHelper = new DbHelper(this);
         lists = new ArrayList<>();
 
         lstNames = findViewById(R.id.lists);
-        //lstNames = (ListView) findViewById(R.id.lstTask);
         Intent loginID = getIntent();
-        //userID = Integer.parseInt(loginID.getStringExtra("userID"));
         userID = loginID.getStringExtra("userID");
-        //Bundle extras = loginID.getExtras();
-        //userID = extras.getString("userID");
 
         queryLists(userID, this);
     }
@@ -78,9 +71,7 @@ public class ListView extends AppCompatActivity {
     private void loadTaskList() {
 
         try {
-            //ArrayList<String> taskList = dbHelper.getTaskList();
             if (mAdapter == null) {
-
                mAdapter = new ArrayAdapter<String>(this, R.layout.generate_list_view, R.id.list_title, lists);
                lstNames.setAdapter(mAdapter);
             } else {
@@ -121,7 +112,6 @@ public class ListView extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 String task = String.valueOf(taskEditText.getText());
                                 addList(task, userID, context);
-                                dbHelper.insertNewTask(task);
                                 loadTaskList();
                             }
                         })
@@ -157,10 +147,25 @@ public class ListView extends AppCompatActivity {
     }
 
     public void innerList(View view) {
+        View parent = (View)view.getParent();
+        TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
+        Log.e("String", (String) taskTextView.getText());
+        String task = String.valueOf(taskTextView.getText());
 
         Intent i = new Intent(this, EditListView.class);
-        TextView list_title = (TextView) findViewById(R.id.list_title);
-        i.putExtra("ListName", list_title.getText().toString());
+        i.putExtra("ListName", task);
+        i.putExtra("UserID", userID);
+        startActivity(i);
+    }
+
+    public void storeSelect(View view) {
+        View parent = (View)view.getParent();
+        TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
+        Log.e("String", (String) taskTextView.getText());
+        String task = String.valueOf(taskTextView.getText());
+
+        Intent i = new Intent(this, StoreView.class);
+        i.putExtra("ListName", task);
         i.putExtra("UserID", userID);
         startActivity(i);
     }
@@ -308,4 +313,3 @@ public class ListView extends AppCompatActivity {
     }
 
 }
-

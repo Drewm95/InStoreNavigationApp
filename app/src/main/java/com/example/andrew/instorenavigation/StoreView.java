@@ -1,6 +1,7 @@
 package com.example.andrew.instorenavigation;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -25,29 +26,33 @@ public class StoreView extends AppCompatActivity {
     private String listID;
     private static String store;
     private String storeID;
+    String listName;
 
     private Context context;
     private String StoreID;
     private ArrayList<String> products;
     private String start;
-    @Override
-    public void setTitle(CharSequence title) {
-        super.setTitle("Select Store");
-    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_store_view);
         context = this;
+
+        Intent load = getIntent();
+        listName = load.getStringExtra("ListName");
+        super.setTitle("Select Store: " + listName);
     }
 
+    /*
     StoreView (ArrayList<String> products, String listID) {
         this.products = products;
         this.listID = listID;
 
         queryStores("" + listID, "" + listID);
     }
+    */
 
     //Method will use a queryNodes to select the stores that hold all of the products.
         //Will then change the display to show all the store names with a button to
