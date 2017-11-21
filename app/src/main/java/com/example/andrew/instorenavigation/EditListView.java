@@ -41,7 +41,7 @@ public class EditListView extends AppCompatActivity {
     ArrayAdapter<String> mAdapter;
     android.widget.ListView lstTask;
     //private int userID;
-    private String userID;
+    private String userID, listName;
     private Context context;
 
     @Override
@@ -53,6 +53,13 @@ public class EditListView extends AppCompatActivity {
 
         lstTask = findViewById(R.id.edit_list);
         Intent loginID = getIntent();
+        if(loginID.hasExtra("UserID")){
+            userID = loginID.getStringExtra("userId");
+        }
+        if(loginID.hasExtra("ListName")){
+            listName = loginID.getStringExtra("ListName");
+        }
+        //TODO Add an error message if the extras are not present and kick user back to list view
         //userID = Integer.parseInt(loginID.getStringExtra("userID"));
        // userID = loginID.getStringExtra("userID");
         //Bundle extras = loginID.getExtras();
@@ -99,7 +106,8 @@ public class EditListView extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String task = String.valueOf(taskEditText.getText());
-                               // query(task, userID, context);
+                                query(listName, userID, context);
+
                                 itemDbHelper.insertNewTask(task);
                                 loadTaskList();
                             }
@@ -145,7 +153,7 @@ public class EditListView extends AppCompatActivity {
         String responseValue = null;
 
 
-        String url = "http://34.238.160.248/InsertList.php";
+        String url = "http://34.238.160.248/GetListContents.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -154,6 +162,8 @@ public class EditListView extends AppCompatActivity {
                         Log.d("Response", response);
 
                         if(response.length() > 1){
+
+
 
                         }
 
@@ -170,7 +180,7 @@ public class EditListView extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Name", key1);
+                params.put("List_Name", key1);
                 params.put("Users_UserID", key2);
 
                 return params;
@@ -178,6 +188,7 @@ public class EditListView extends AppCompatActivity {
         };
         queue.add(postRequest);
     }
+
 
 }
 
