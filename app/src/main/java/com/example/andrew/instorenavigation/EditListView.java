@@ -43,6 +43,7 @@ public class EditListView extends AppCompatActivity {
     //private int userID;
     private String userID, listName;
     private Context context;
+    private ArrayList<String> items;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,7 @@ public class EditListView extends AppCompatActivity {
 
         lstTask = findViewById(R.id.edit_list);
         Intent loginID = getIntent();
+
         if(loginID.hasExtra("UserID")){
             userID = loginID.getStringExtra("userId");
         }
@@ -60,23 +62,25 @@ public class EditListView extends AppCompatActivity {
             listName = loginID.getStringExtra("ListName");
         }
         //TODO Add an error message if the extras are not present and kick user back to list view
-        //userID = Integer.parseInt(loginID.getStringExtra("userID"));
-       // userID = loginID.getStringExtra("userID");
-        //Bundle extras = loginID.getExtras();
-        // userID = extras.getString("userID");
-        loadTaskList();
+
+        items = new ArrayList<>();
+        this.setTitle(listName);
+        queryItems();
+
+       // loadTaskList();
 
     }
 
+    // ---------- Load Task List ----------
     private void loadTaskList() {
-        ArrayList<String> taskList = itemDbHelper.getTaskList();
+       // ArrayList<String> taskList = itemDbHelper.getTaskList();
         if(mAdapter==null){
-            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.item_title,taskList);
+            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.item_title,items);
             lstTask.setAdapter(mAdapter);
         }
         else{
             mAdapter.clear();
-            mAdapter.addAll(taskList);
+            mAdapter.addAll(items);
             mAdapter.notifyDataSetChanged();
         }
     }
@@ -106,9 +110,10 @@ public class EditListView extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String task = String.valueOf(taskEditText.getText());
-                                query(listName, userID, context);
+                                addItems(listName,userID,task, context);
+                               // queryItems(listName, userID, context);
 
-                                itemDbHelper.insertNewTask(task);
+
                                 loadTaskList();
                             }
                         })
@@ -147,13 +152,15 @@ public class EditListView extends AppCompatActivity {
 
 
 
-    public void query(final String key1, final String key2, Context context) {
+
+    // ---------- Add Items ----------
+  public void addItems(final String key1, final String key2, final String key3, Context context) {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
         String responseValue = null;
 
 
-        String url = "http://34.238.160.248/GetListContents.php";
+        String url = "http://34.238.160.248/InsertListProd.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -162,7 +169,8 @@ public class EditListView extends AppCompatActivity {
                         Log.d("Response", response);
 
                         if(response.length() > 1){
-
+                            items.add(key3);
+                            loadTaskList();
 
 
                         }
@@ -182,12 +190,74 @@ public class EditListView extends AppCompatActivity {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("List_Name", key1);
                 params.put("Users_UserID", key2);
+                params.put("Product_Name", key3);
 
                 return params;
             }
         };
         queue.add(postRequest);
     }
+
+
+    // ---------- Query Items ----------
+    private void queryItems() {
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/GetListContents.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() >= 1){
+                            parseItemNames(response);
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("List_Name", listName);
+                params.put("Users_UserID", userID);
+              //  params.put("Product_Name", items.);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+    // ---------- Parse Item Names ----------
+    private void parseItemNames(String items) {
+        int i = 0;
+
+        for (int j = 0; j < items.length(); j++) {
+            String check = items.substring(j,j+1);
+            if (check.equals(",")) {
+                String temp = items.substring(i,j);
+                this.items.add(temp);
+                i = j+1;
+            }
+        }
+
+        loadTaskList();
+    }
+
+
 
 
 }
