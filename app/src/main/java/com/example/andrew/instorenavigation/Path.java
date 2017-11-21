@@ -2,6 +2,8 @@ package com.example.andrew.instorenavigation;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -12,8 +14,10 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Andrew on 11/9/17.
@@ -37,11 +41,6 @@ public class Path extends Activity{
     //Every even number will be a diatance, and every odd number will be a direction associated with
         //the distance before hand.
     private ArrayList<Integer> route;
-
-    //The data from the JSON file in the database will return an arraylist of the following format:
-    //      {[NaX, NaY, NbX, NbY, L],[NbX, NbY, NcX, NcY, L],...}
-    //Which is listing the X and Y of connected nodes and the length between them. The collection
-    // contains the nodes needed to travel between a start and end node.
 
     Path(String StoreID, ArrayList<String> products, String start, Context context) {
         this.Store_ID = StoreID;
@@ -114,7 +113,7 @@ public class Path extends Activity{
         String responseValue = null;
 
 
-        String url = "http://34.238.160.248/getNode.php";
+        String url = "http://34.238.160.248/getEdges.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -156,7 +155,7 @@ public class Path extends Activity{
         String responseValue = null;
 
 
-        String url = "http://34.238.160.248/getNode.php";
+        String url = "http://34.238.160.248/getPath.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -190,7 +189,6 @@ public class Path extends Activity{
         queue.add(postRequest);
     }
 
-    //int limit is the degree limitation (in our case, always 2)
     private void calculatePath() {
 
         int[] parent = new int[this.nodeCount];
@@ -300,8 +298,8 @@ public class Path extends Activity{
         int i = 0;
 
         for(int j = 0; j < nodes.length(); j++) {
-            if (nodes.substring(j,j) == ",") {
-                Integer temp = Integer.parseInt(nodes.substring(i, j - 1));
+            if (nodes.substring(j,j+1) == ",") {
+                Integer temp = Integer.parseInt(nodes.substring(i,j));
                 if (!nodesVisited.contains(temp)) {
                     nodesVisited.add(temp);
                     //Store each node ID at it's location in the table
@@ -326,11 +324,11 @@ public class Path extends Activity{
         int commaCount = 0;
 
         for(int j = 0; j < edges.length(); j++) {
-            if (edges.substring(j,j) == ",") {
+            if (edges.substring(j,j+1) == ",") {
                 commaCount++;
                 if (commaCount == 3) {
                     commaCount = 0;
-                    Integer temp = Integer.parseInt(edges.substring(i, j - 1));
+                    Integer temp = Integer.parseInt(edges.substring(i,j));
                     edgeCollection.add(temp);
                 }
                 i = j + 1;
@@ -340,6 +338,28 @@ public class Path extends Activity{
     }
 
     private void parseDetailedPath (String path) {
+        HashMap<Integer, Integer> directions = new HashMap<>();
+        int i = 0;
+        int commaCount = 0;
+        int tempDirection = 0, tempDistance = 0;
+        path.replace("[", ""); path.replace("]", "");
+        for (int j = 0; j < path.length(); j++) {
+            if (path.substring(j,j+1) == ",") {
+                commaCount++;
+                if (commaCount == 1) {
+                    tempDirection = Integer.parseInt(path.substring(i,j));
+                } else {
+                    commaCount = 0;
+                    tempDistance = Integer.parseInt(path.substring(i,j));
+                    directions.put(tempDirection, tempDistance);
+                }
+                i = j+1;
+            }
+        }
 
+        //Switch view to the navigation view
+        Intent intent = new Intent(this, NavigationView.class);
+        intent.putExtra("Path", directions);
+        startActivity(intent);
     }
 }

@@ -27,7 +27,9 @@ import com.android.volley.toolbox.Volley;
 //import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -47,6 +49,7 @@ public class ListView extends AppCompatActivity {
     private String userID;
     private Context context;
     private String LID;
+    private ArrayList<String> lists;
 
     @Override
     public void setTitle(CharSequence title) {
@@ -59,6 +62,7 @@ public class ListView extends AppCompatActivity {
         setContentView(R.layout.activity_list_view);
         context = this;
         dbHelper = new DbHelper(this);
+        lists = new ArrayList<>();
 
         lstNames = findViewById(R.id.lists);
         //lstNames = (ListView) findViewById(R.id.lstTask);
@@ -66,23 +70,22 @@ public class ListView extends AppCompatActivity {
         //userID = Integer.parseInt(loginID.getStringExtra("userID"));
         userID = loginID.getStringExtra("userID");
         //Bundle extras = loginID.getExtras();
-       // userID = extras.getString("userID");
+        //userID = extras.getString("userID");
 
-        loadTaskList();
-        this.setTitle("");
+        queryLists(userID, this);
     }
 
     private void loadTaskList() {
 
         try {
-            ArrayList<String> taskList = dbHelper.getTaskList();
-           if (mAdapter == null) {
+            //ArrayList<String> taskList = dbHelper.getTaskList();
+            if (mAdapter == null) {
 
-               mAdapter = new ArrayAdapter<String>(this, R.layout.generate_list_view, R.id.list_title, taskList);
-                lstNames.setAdapter(mAdapter);
+               mAdapter = new ArrayAdapter<String>(this, R.layout.generate_list_view, R.id.list_title, lists);
+               lstNames.setAdapter(mAdapter);
             } else {
-                mAdapter.clear();
-                mAdapter.addAll(taskList);
+                mAdapter = new ArrayAdapter<String>(this, R.layout.generate_list_view, R.id.list_title, lists);
+                lstNames.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
             }
 
@@ -144,9 +147,6 @@ public class ListView extends AppCompatActivity {
                         String task = String.valueOf(taskTextView.getText());
 
                         deleteList(userID, task, context);
-                        dbHelper.deleteTask(task);
-
-                        loadTaskList();
                     }
                 })
                 .setNegativeButton("Cancel",null)
@@ -180,6 +180,8 @@ public class ListView extends AppCompatActivity {
 
                         if(response.length() >= 1){
                             LID = response;
+                            lists.add(key1);
+                            loadTaskList();
                         }
 
                     }
@@ -218,8 +220,9 @@ public class ListView extends AppCompatActivity {
                         // response
                         Log.d("Response", response);
 
-                        if(response.length() >= 1){
-
+                        if(response.length() > 3){
+                            lists.remove(Name);
+                            loadTaskList();
                         }
 
                     }
@@ -244,6 +247,62 @@ public class ListView extends AppCompatActivity {
 
 
         queue.add(postRequest);
+    }
+
+    private void queryLists(final String key1, Context context) {
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/GetList.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() >= 1){
+                            parseListNames(response);
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Users_UserID", key1);
+                params.put("Users_UserID", key1);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+    private void parseListNames(String lists) {
+        int i = 0;
+
+        for (int j = 0; j < lists.length(); j++) {
+            String check = lists.substring(j,j+1);
+            if (check.equals(",")) {
+                String temp = lists.substring(i,j);
+                this.lists.add(temp);
+                i = j+1;
+            }
+        }
+
+        this.setTitle("Your Lists");
+        loadTaskList();
     }
 
 }
