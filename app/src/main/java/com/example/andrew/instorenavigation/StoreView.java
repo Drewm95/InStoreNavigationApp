@@ -28,14 +28,17 @@ import java.util.Map;
 
 public class StoreView extends AppCompatActivity {
     ArrayAdapter<String> mAdapter;
+    ArrayAdapter<String> mAdapter2;
     android.widget.ListView storeNames;
 
+    private String store;
     private String listID;
     private String storeID;
     String listName;
     String UID;
 
     private ArrayList<String> stores;
+    private ArrayList<String> storeIDs;
     private Context context;
     private ArrayList<String> products;
     private String start;
@@ -47,9 +50,8 @@ public class StoreView extends AppCompatActivity {
         setContentView(R.layout.activity_store_view);
         context = this;
         products = new ArrayList<>();
-        start = "";
         stores = new ArrayList<>();
-        listID = "";
+        storeIDs = new ArrayList<>();
         storeNames = findViewById(R.id.storeList);
 
         Intent load = getIntent();
@@ -65,9 +67,11 @@ public class StoreView extends AppCompatActivity {
         try {
             if (mAdapter == null) {
                 mAdapter = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_title, stores);
+                mAdapter2 = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_ID, storeIDs);
                 storeNames.setAdapter(mAdapter);
             } else {
                 mAdapter = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_title, stores);
+                mAdapter2 = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_ID, storeIDs);
                 storeNames.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
             }
@@ -120,11 +124,14 @@ public class StoreView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
-    public void queryStoreID(final String storeName) {
-        RequestQueue queue = Volley.newRequestQueue(this);
+    private void queryStart() {
+
+
+        RequestQueue queue = Volley.newRequestQueue(context);
         String responseValue = null;
 
-        String url = "http://34.238.160.248/getStoreID.php";
+
+        String url = "http://34.238.160.248/getStoreStart.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -132,8 +139,8 @@ public class StoreView extends AppCompatActivity {
                         // response
                         Log.d("Response", response);
 
-                        if(response.length() > 1){
-                            Path path = new Path(response, products, start, context);
+                        if(response.length() >= 1){
+                            Path path = new Path(store, products, response, context);
                         }
                     }
                 },
@@ -148,7 +155,7 @@ public class StoreView extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("StoreName", "" + storeName);
+                params.put("Store_ID", storeID);
 
                 return params;
             }
@@ -198,12 +205,18 @@ public class StoreView extends AppCompatActivity {
 
     public void parseStores(String stores) {
             int i = 0;
-
+            int commacount = 0;
             for (int j = 0; j < stores.length(); j++) {
                 String check = stores.substring(j,j+1);
-                if (check.equals(",")) {
+                if (check.equals("`")) {
+                    commacount++;
                     String temp = stores.substring(i,j);
-                    this.stores.add(temp);
+                    if (commacount == 1) {
+                        this.stores.add(temp);
+                    }else {
+                        commacount = 0;
+                        this.storeIDs.add(temp);
+                    }
                     i = j+1;
                 }
             }
@@ -216,7 +229,7 @@ public class StoreView extends AppCompatActivity {
 
         for (int j = 0; j < items.length(); j++) {
             String check = items.substring(j,j+1);
-            if (check.equals(",")) {
+            if (check.equals("`")) {
                 String temp = items.substring(i,j);
                 this.products.add(temp);
                 i = j+1;
@@ -234,11 +247,12 @@ public class StoreView extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         View parent = (View)v.getParent();
-                        TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
+                        TextView taskTextView = (TextView)parent.findViewById(R.id.store_ID);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
+                        storeID = task;
 
-                        queryStoreID(task);
+                        queryStart();
                     }
                 })
                 .setNegativeButton("No",null)

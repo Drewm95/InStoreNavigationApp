@@ -298,7 +298,7 @@ public class ListView extends AppCompatActivity {
 
         for (int j = 0; j < lists.length(); j++) {
             String check = lists.substring(j,j+1);
-            if (check.equals(",")) {
+            if (check.equals("`")) {
                 String temp = lists.substring(i,j);
                 this.lists.add(temp);
                 i = j+1;

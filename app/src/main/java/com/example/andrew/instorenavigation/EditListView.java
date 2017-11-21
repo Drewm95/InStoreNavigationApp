@@ -291,7 +291,7 @@ public class EditListView extends AppCompatActivity {
 
         for (int j = 0; j < items.length(); j++) {
             String check = items.substring(j,j+1);
-            if (check.equals(",")) {
+            if (check.equals("`")) {
                 String temp = items.substring(i,j);
                 this.items.add(temp);
                 i = j+1;

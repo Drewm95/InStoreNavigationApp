@@ -71,7 +71,7 @@ public class NavigationView extends Activity implements SensorEventListener {
 
         //Get the textViews
         //lowAccuracyWarning = (TextView)findViewById(R.id.lowAccuracyWarning);
-        stepCountView = (TextView)findViewById(R.id.NavStepCount);
+        //stepCountView = (TextView)findViewById(R.id.NavStepCount);
         arrow = (ImageView)findViewById(R.id.arrowView);
         instructionView = (TextView)findViewById(R.id.InstructionView);
 

@@ -53,18 +53,18 @@ public class Path extends Activity{
         nodesVisited.add(Integer.parseInt(start));
         nodeCount++;
 
-        String productIDs= "";
+        String productNames= "";
         for (int i = 0; i < products.size(); i++) {
             if (i != products.size()-1) {
-                productIDs += products.get(i) + ",";
+                productNames += products.get(i) + ",";
             } else {
-                productIDs += products.get(i);
+                productNames += products.get(i);
             }
         }
-        queryNodes(productIDs, StoreID, context);
+        queryNodes(productNames, StoreID, context);
     }
 
-    private void queryNodes(final String productIds, final String storeId, Context context) {
+    private void queryNodes(final String Product_Names, final String storeId, Context context) {
 
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -94,11 +94,10 @@ public class Path extends Activity{
         ) {
             @Override
             protected Map<String, String> getParams() {
-                String Product_PIDs = productIds;
                 String Store_SID = storeId;
 
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Product_PIDs", Product_PIDs);
+                params.put("Product_Names", Product_Names);
                 params.put("Store_SID", Store_SID);
 
                 return params;
@@ -298,7 +297,7 @@ public class Path extends Activity{
         int i = 0;
 
         for(int j = 0; j < nodes.length(); j++) {
-            if (nodes.substring(j,j+1) == ",") {
+            if (nodes.substring(j,j+1) == "`") {
                 Integer temp = Integer.parseInt(nodes.substring(i,j));
                 if (!nodesVisited.contains(temp)) {
                     nodesVisited.add(temp);
@@ -324,7 +323,7 @@ public class Path extends Activity{
         int commaCount = 0;
 
         for(int j = 0; j < edges.length(); j++) {
-            if (edges.substring(j,j+1) == ",") {
+            if (edges.substring(j,j+1) == "`") {
                 commaCount++;
                 if (commaCount == 3) {
                     commaCount = 0;
@@ -344,7 +343,7 @@ public class Path extends Activity{
         int tempDirection = 0, tempDistance = 0;
         path.replace("[", ""); path.replace("]", "");
         for (int j = 0; j < path.length(); j++) {
-            if (path.substring(j,j+1) == ",") {
+            if (path.substring(j,j+1) == "`") {
                 commaCount++;
                 if (commaCount == 1) {
                     tempDirection = Integer.parseInt(path.substring(i,j));
