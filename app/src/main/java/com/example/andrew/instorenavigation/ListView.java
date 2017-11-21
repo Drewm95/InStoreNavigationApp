@@ -159,7 +159,9 @@ public class ListView extends AppCompatActivity {
     public void innerList(View view) {
 
         Intent i = new Intent(this, EditListView.class);
-        i.putExtra("LID", LID);
+        TextView list_title = (TextView) findViewById(R.id.list_title);
+        i.putExtra("ListName", list_title.getText().toString());
+        i.putExtra("UserID", userID);
         startActivity(i);
     }
 
