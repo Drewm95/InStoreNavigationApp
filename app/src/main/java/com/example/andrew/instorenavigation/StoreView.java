@@ -62,8 +62,9 @@ public class StoreView extends AppCompatActivity implements View.OnClickListener
 
         //handle click on a specific item
         storeNames.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
-                path(pos);
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                path(position);
             }
         });
 
@@ -73,21 +74,20 @@ public class StoreView extends AppCompatActivity implements View.OnClickListener
     private void loadTaskList() {
 
         try {
-            if (mAdapter == null) {
-                mAdapter = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_title, stores);
-                mAdapter2 = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_ID, storeIDs);
-                storeNames.setAdapter(mAdapter);
-            } else {
-                mAdapter = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_title, stores);
-                mAdapter2 = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_ID, storeIDs);
-                storeNames.setAdapter(mAdapter);
-                mAdapter.notifyDataSetChanged();
-            }
-
+            mAdapter = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_title, stores);
+            //handle click on a specific item
+            storeNames.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> mAdapter, View view, int position, long id) {
+                    path(position);
+                }
+            });
+            storeNames.setAdapter(mAdapter);
         }
         catch (Exception e){
             e.printStackTrace();
         }
+
     }
 
     //Method will use a queryNodes to select the stores that hold all of the products.
@@ -216,7 +216,7 @@ public class StoreView extends AppCompatActivity implements View.OnClickListener
             int commacount = 0;
             for (int j = 0; j < stores.length(); j++) {
                 String check = stores.substring(j,j+1);
-                if (check.equals("`")) {
+                 if (check.equals("`")) {
                     commacount++;
                     String temp = stores.substring(i,j);
                     if (commacount == 1) {
@@ -248,20 +248,14 @@ public class StoreView extends AppCompatActivity implements View.OnClickListener
     }
 
 
-    public void path(int position) {
+    public void path(final int position) {
 
         AlertDialog dialog = new AlertDialog.Builder(this) //Create prompt to ask if user wants to delete a itemlist
                 .setMessage("Do you want to navigate this store?") //Prompt message for user
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
-                        View parent = (View)v.getParent();
-                        TextView taskTextView = (TextView)parent.findViewById(R.id.store_ID);
-                        Log.e("String", (String) taskTextView.getText());
-                        String task = String.valueOf(taskTextView.getText());
-                        storeID = task;
-
+                        storeID = storeIDs.get(position);
                         queryStart();
                     }
                 })
