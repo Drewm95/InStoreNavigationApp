@@ -116,16 +116,4 @@ public class LoginView extends Activity implements View.OnClickListener{
         intent.putExtra("userID", userID );
         startActivity(intent);
     }
-
-    public void pathTest(final View view) {
-        ArrayList<String> products = new ArrayList<>();
-        String storeID = "1";
-
-        //1,5,6,7,3
-        products.add("1"); products.add("5"); products.add("6"); products.add("7"); products.add("3");
-
-        Path test = new Path(storeID, products, "1", this);
-
-
-    }
 }
