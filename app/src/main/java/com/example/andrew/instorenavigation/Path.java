@@ -3,7 +3,6 @@ package com.example.andrew.instorenavigation;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -14,10 +13,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Andrew on 11/9/17.
@@ -94,11 +91,11 @@ public class Path extends Activity{
         ) {
             @Override
             protected Map<String, String> getParams() {
-                String Store_SID = storeId;
+
 
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Product_Names", Product_Names);
-                params.put("Store_SID", Store_SID);
+                params.put("Store_SID", Store_ID);
 
                 return params;
             }
@@ -112,7 +109,7 @@ public class Path extends Activity{
         String responseValue = null;
 
 
-        String url = "http://34.238.160.248/getEdges.php";
+        String url = "http://34.238.160.248/getEdge.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -138,7 +135,7 @@ public class Path extends Activity{
                 String Store_SID = storeId;
 
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Node_IDs", NodeIDs);
+                params.put("Node_NIDs", NodeIDs);
                 params.put("Store_SID", Store_SID);
 
                 return params;
@@ -147,7 +144,7 @@ public class Path extends Activity{
         queue.add(postRequest);
     }
 
-    private void queryPath(final String Node_IDs, final String storeId, Context context) {
+    private void queryPath(final String Node_IDs, final String storeId, final Context context) {
 
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -163,7 +160,10 @@ public class Path extends Activity{
                         Log.d("Response", response);
 
                         if(response.length() >= 1){
-                            parseDetailedPath(response);
+                            //Switch view to the navigation view
+                            Intent intent = new Intent(context, NavigationView.class);
+                            intent.putExtra("Path", response);
+                            startActivity(intent);
                         }
                     }
                 },
@@ -179,7 +179,7 @@ public class Path extends Activity{
             protected Map<String, String> getParams() {
 
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Node_IDs", Node_IDs);
+                params.put("Node_NIDs", Node_IDs);
                 params.put("Store_SID", storeId);
 
                 return params;
@@ -198,16 +198,14 @@ public class Path extends Activity{
 
         nodes = new Node[nodeCount];
 
-        //Start node will be the parent to everything, thusly not having a parent
-        parent[0] = -1;
-
         //All other nodes are not connected, parent of -1
-        for (int i = 1; i < nodeCount-1; i++) {
-            parent[i] = -1;
+        for (int i = 0; i < nodeCount; i++) {
+            parent[i] = 0;
         }
 
         for (int i = 0; i < nodeCount; i++) {
             nodes[i] = new Node(i);
+            nodes[i].setID(nodeEdgeData[i][i]);
         }
 
         //Print out the matrix
@@ -221,13 +219,13 @@ public class Path extends Activity{
         System.out.println("\n");
 
         //Continue loop until path is found
-        while (edgeCount - 1 < nodeCount) {
-            min = -1;
+        while (edgeCount < nodeCount-1) {
+            min = Integer.MAX_VALUE;
             for(int i = 0; i < nodeCount; i++) {
                 if (!nodes[i].atCap()) {
                     for(int j = i+1; j < nodeCount; j++) {
                         if (!nodes[j].atCap()) {
-                            if (nodeEdgeData[i][j] < min || min == -1) {
+                            if (nodeEdgeData[i][j] < min) {
                                 min = nodeEdgeData[i][j];
                                 u = i;
                                 v = j;
@@ -240,14 +238,14 @@ public class Path extends Activity{
             int temp1 = u;
             int temp2 = v;
 
-            nodeEdgeData[u][v] = nodeEdgeData[v][u] = -1;
+            nodeEdgeData[u][v] = nodeEdgeData[v][u] = Integer.MAX_VALUE;
 
             //These while loops are used to find the root of the tree and set it as the parent of the newly connected node
             //this is used to find the root element of each node tree
-            while(parent[u] != -1) {
+            while(parent[u] != 0) {
                 u = parent[u];
             }
-            while(parent[v] != -1) {
+            while(parent[v] != 0) {
                 v = parent[v];
             }
 
@@ -268,41 +266,36 @@ public class Path extends Activity{
 
         for (int i = 0; i < nodeCount; i++) {
             if (i == 0) {
-                nodesFormatted += start;
+                nodesFormatted += start + "`";
                 startToFin[i] = Integer.parseInt(start);
             } else {
                 ArrayList<Node> temp = nodes[i].getConnections();
 
-                if (temp.get(0).getId() == startToFin[i - 1]) {
-                    if (i == nodeCount - 1) {
-                        nodesFormatted += temp.get(1).getId();
-                    } else {
-                        nodesFormatted += temp.get(1).getId() + ",";
-                    }
-                    startToFin[i] = temp.get(1).getId();
+                if (temp.size() == 1) {
+                    nodesFormatted += nodes[i].getId() + "`";
                 } else {
-                    if (i == nodeCount - 1) {
-                        nodesFormatted += temp.get(0).getId();
+                    if (temp.get(0).getId() == startToFin[i - 1]) {
+                        nodesFormatted += temp.get(1).getId() + "`";
+                        startToFin[i] = temp.get(1).getId();
                     } else {
-                        nodesFormatted += temp.get(0).getId() + ",";
+                        nodesFormatted += temp.get(0).getId() + "`";
+                        startToFin[i] = temp.get(0).getId();
                     }
-                    startToFin[i] = temp.get(0).getId();
                 }
             }
         }
         queryPath(nodesFormatted, Store_ID, context);
     }
 
-    private void parseNodes(String nodes){
+    private void parseNodes(String nodeString){
         int i = 0;
 
-        for(int j = 0; j < nodes.length(); j++) {
-            if (nodes.substring(j,j+1) == "`") {
-                Integer temp = Integer.parseInt(nodes.substring(i,j));
+        for(int j = 0; j < nodeString.length(); j++) {
+            if (nodeString.substring(j,j+1).equals("`")) {
+                Integer temp = Integer.parseInt(nodeString.substring(i,j));
                 if (!nodesVisited.contains(temp)) {
                     nodesVisited.add(temp);
-                    //Store each node ID at it's location in the table
-                    nodeEdgeData[nodeCount][nodeCount] = temp;
+                    //Store each node ID at it's location in the tables
                     nodeCount++;
                 }
                 i = j + 1;
@@ -310,12 +303,14 @@ public class Path extends Activity{
         }
         nodeEdgeData = new int[nodeCount][nodeCount];
 
-        queryEdges(nodes, Store_ID, context);
+        for (int j = 0; j < nodesVisited.size(); j++) {
+            nodeEdgeData[j][j] = nodesVisited.get(j);
+        }
+
+        queryEdges(nodeString, Store_ID, context);
     }
 
     private void parseEdges (String edges){
-        //Edges will be returned in the following manner:
-            //"Node1,Node2,Length,Node1,Node3,Length,Node2,Node3,Length"
         int [] nodeIDs = new int[nodeCount];
         ArrayList<Integer> edgeCollection = new ArrayList<>();
 
@@ -323,7 +318,7 @@ public class Path extends Activity{
         int commaCount = 0;
 
         for(int j = 0; j < edges.length(); j++) {
-            if (edges.substring(j,j+1) == "`") {
+            if (edges.substring(j,j+1).equals("`")) {
                 commaCount++;
                 if (commaCount == 3) {
                     commaCount = 0;
@@ -334,31 +329,5 @@ public class Path extends Activity{
             }
         }
         this.calculatePath();
-    }
-
-    private void parseDetailedPath (String path) {
-        HashMap<Integer, Integer> directions = new HashMap<>();
-        int i = 0;
-        int commaCount = 0;
-        int tempDirection = 0, tempDistance = 0;
-        path.replace("[", ""); path.replace("]", "");
-        for (int j = 0; j < path.length(); j++) {
-            if (path.substring(j,j+1) == "`") {
-                commaCount++;
-                if (commaCount == 1) {
-                    tempDirection = Integer.parseInt(path.substring(i,j));
-                } else {
-                    commaCount = 0;
-                    tempDistance = Integer.parseInt(path.substring(i,j));
-                    directions.put(tempDirection, tempDistance);
-                }
-                i = j+1;
-            }
-        }
-
-        //Switch view to the navigation view
-        Intent intent = new Intent(context, NavigationView.class);
-        intent.putExtra("Path", directions);
-        startActivity(intent);
     }
 }

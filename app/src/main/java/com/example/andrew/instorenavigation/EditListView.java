@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -110,11 +111,10 @@ public class EditListView extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String item = String.valueOf(taskEditText.getText()); //Gets the string the user has entered
-                                addItems(listName,userID,item, context);//Adds items to the database
-                               // queryItems(listName, userID, context);
+                                //Test to see if the item is in the database
 
+                                testItem(item);
 
-                                loadTaskList();
                             }
                         })
                         .setNegativeButton("Cancel",null)
@@ -137,9 +137,7 @@ public class EditListView extends AppCompatActivity {
                         TextView taskTextView = (TextView)parent.findViewById(R.id.item_title);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
-                        deleteItem(listName,userID,task,context);
-
-
+                        deleteItem(listName, userID, task,context);
                         loadTaskList();
                     }
                 })
@@ -191,7 +189,7 @@ public class EditListView extends AppCompatActivity {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("List_Name", key1);
                 params.put("Users_UserID", key2);
-                params.put("Product_Name", key3);
+              //  params.put("Product_Name", key3);
 
                 return params;
             }
@@ -201,7 +199,7 @@ public class EditListView extends AppCompatActivity {
 
 
     // ---------- Delete Item ----------
-    public void deleteItem(final String ListName, final String Users_UserID, final String item, Context context) {
+    public void deleteItem(final String ListName,final String userID, final String item, Context context) {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
         String responseValue = null;
@@ -215,10 +213,9 @@ public class EditListView extends AppCompatActivity {
                         // response
                         Log.d("Response", response);
 
-                        if(response.length() > 3){
-                            items.remove(item);
-                            loadTaskList();
-                        }
+                        items.remove(item);
+                        loadTaskList();
+
 
                     }
                 },
@@ -233,8 +230,8 @@ public class EditListView extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Users_UserID", Users_UserID);
-                params.put("List_Name", listName);
+              //  params.put("Users_UserID", userID);
+                params.put("List_Name", ListName);
                 params.put("Product_Name", item);
 
 
@@ -303,13 +300,59 @@ public class EditListView extends AppCompatActivity {
 
         loadTaskList();
     }
+    //Result is the value for the item being tested
+    boolean result;
+    // ---------- Test to see if item is in the database ----------
+    private void testItem (final String item){
 
-    public void back(final View v) {
-        Intent intent = new Intent(this, ListView.class);
-        intent.putExtra("userID", userID );
-        startActivity(intent);
+        //result[0] = true;
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/CheckProduct.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if (response.equals(item)) {
+                            addItems(listName, userID, item, context);//Adds item to the list if in the database
+                            loadTaskList();
+                        } else {
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "Item not Found :(";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                //params.put("List_Name", key1);
+               // params.put("Users_UserID", key2);
+                 params.put("Product_Name", item);
+
+                return params;
+            }
+        };
+
+        queue.add(postRequest);
     }
-
 
 }
 
