@@ -5,12 +5,14 @@ package com.example.andrew.instorenavigation;
  */
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -82,7 +84,21 @@ public class LoginView extends Activity implements View.OnClickListener{
                         // response
                         Log.d("Response", response);
 
-                        if(response.length() >= 1){
+                        if(response.equals("Bad")){
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "An Unexpected Error Occurred";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
+                        } else if (response.equals("")){
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "Email or Password is Incorrect";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
+                        } else {
                             userID = (response);
                             goToListView(view);
                         }
@@ -114,6 +130,11 @@ public class LoginView extends Activity implements View.OnClickListener{
         //Switch view to the list view
         Intent intent = new Intent(this, ListView.class);
         intent.putExtra("userID", userID );
+        startActivity(intent);
+    }
+
+    public void register(View v) {
+        Intent intent = new Intent(this, CreateAccount.class);
         startActivity(intent);
     }
 }
