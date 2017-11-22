@@ -23,21 +23,6 @@ import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
 
-import android.app.Activity;
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.os.Bundle;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Calendar;
-import java.util.Date;
-
 public class NavigationView extends Activity implements SensorEventListener {
 
     //declare the sensor manager
@@ -71,7 +56,7 @@ public class NavigationView extends Activity implements SensorEventListener {
 
         //Get the textViews
         //lowAccuracyWarning = (TextView)findViewById(R.id.lowAccuracyWarning);
-        stepCountView = (TextView)findViewById(R.id.NavStepCount);
+        //stepCountView = (TextView)findViewById(R.id.NavStepCount);
         arrow = (ImageView)findViewById(R.id.arrowView);
         instructionView = (TextView)findViewById(R.id.InstructionView);
 
