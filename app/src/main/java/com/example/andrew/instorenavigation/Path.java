@@ -267,7 +267,11 @@ public class Path extends Activity{
         nodesFormatted += start + "`";
         for (int i = 1; i < nodeCount; i++) {
             if (currentNode.getConnections().size() == 1) {
-                nodesFormatted += currentNode.getConnections().get(0).getId() + "`";
+                if (currentNode.getConnections().get(0) == previousNode) {
+                    nodesFormatted += currentNode.getId() + "`";
+                } else {
+                    nodesFormatted += currentNode.getConnections().get(0).getId() + "`";
+                }
             } else {
                 if (currentNode.getConnections().get(0) == previousNode) {
                     nodesFormatted += currentNode.getConnections().get(1).getId() + "`";
