@@ -8,8 +8,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.*;
-import android.widget.ListView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -26,7 +27,7 @@ import java.util.Map;
  * Created by Matthew Catron on 11/17/2017.
  */
 
-public class StoreView extends AppCompatActivity {
+public class StoreView extends AppCompatActivity implements View.OnClickListener {
     ArrayAdapter<String> mAdapter;
     ArrayAdapter<String> mAdapter2;
     android.widget.ListView storeNames;
@@ -58,6 +59,13 @@ public class StoreView extends AppCompatActivity {
         listName = load.getStringExtra("ListName");
         UID = load.getStringExtra("UserID");
         super.setTitle("Select Store: " + listName);
+
+        //handle click on a specific item
+        storeNames.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+                path(pos);
+            }
+        });
 
         queryItems();
     }
@@ -239,7 +247,9 @@ public class StoreView extends AppCompatActivity {
         queryStores();
     }
 
-    public void path(final View v) {
+
+    public void path(int position) {
+
         AlertDialog dialog = new AlertDialog.Builder(this) //Create prompt to ask if user wants to delete a itemlist
                 .setMessage("Do you want to navigate this store?") //Prompt message for user
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -258,5 +268,10 @@ public class StoreView extends AppCompatActivity {
                 .setNegativeButton("No",null)
                 .create();
         dialog.show();
+    }
+
+    @Override
+    public void onClick(View v) {
+
     }
 }
