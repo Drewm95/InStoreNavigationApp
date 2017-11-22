@@ -3,7 +3,6 @@ package com.example.andrew.instorenavigation;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -14,10 +13,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Andrew on 11/9/17.
@@ -94,11 +91,11 @@ public class Path extends Activity{
         ) {
             @Override
             protected Map<String, String> getParams() {
-                String Store_SID = storeId;
+
 
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Product_Names", Product_Names);
-                params.put("Store_SID", Store_SID);
+                params.put("Store_SID", Store_ID);
 
                 return params;
             }
@@ -112,7 +109,7 @@ public class Path extends Activity{
         String responseValue = null;
 
 
-        String url = "http://34.238.160.248/getEdges.php";
+        String url = "http://34.238.160.248/getEdge.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -138,7 +135,7 @@ public class Path extends Activity{
                 String Store_SID = storeId;
 
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Node_IDs", NodeIDs);
+                params.put("Node_NIDs", NodeIDs);
                 params.put("Store_SID", Store_SID);
 
                 return params;
@@ -221,7 +218,7 @@ public class Path extends Activity{
         System.out.println("\n");
 
         //Continue loop until path is found
-        while (edgeCount - 1 < nodeCount) {
+        while (edgeCount < nodeCount - 1) {
             min = -1;
             for(int i = 0; i < nodeCount; i++) {
                 if (!nodes[i].atCap()) {
@@ -293,16 +290,15 @@ public class Path extends Activity{
         queryPath(nodesFormatted, Store_ID, context);
     }
 
-    private void parseNodes(String nodes){
+    private void parseNodes(String nodeString){
         int i = 0;
 
-        for(int j = 0; j < nodes.length(); j++) {
-            if (nodes.substring(j,j+1) == "`") {
-                Integer temp = Integer.parseInt(nodes.substring(i,j));
+        for(int j = 0; j < nodeString.length(); j++) {
+            if (nodeString.substring(j,j+1).equals("`")) {
+                Integer temp = Integer.parseInt(nodeString.substring(i,j));
                 if (!nodesVisited.contains(temp)) {
                     nodesVisited.add(temp);
-                    //Store each node ID at it's location in the table
-                    nodeEdgeData[nodeCount][nodeCount] = temp;
+                    //Store each node ID at it's location in the tables
                     nodeCount++;
                 }
                 i = j + 1;
@@ -310,12 +306,14 @@ public class Path extends Activity{
         }
         nodeEdgeData = new int[nodeCount][nodeCount];
 
-        queryEdges(nodes, Store_ID, context);
+        for (int j = 0; j < nodesVisited.size(); j++) {
+            nodeEdgeData[j][j] = nodesVisited.get(j);
+        }
+
+        queryEdges(nodeString, Store_ID, context);
     }
 
     private void parseEdges (String edges){
-        //Edges will be returned in the following manner:
-            //"Node1,Node2,Length,Node1,Node3,Length,Node2,Node3,Length"
         int [] nodeIDs = new int[nodeCount];
         ArrayList<Integer> edgeCollection = new ArrayList<>();
 
@@ -323,7 +321,7 @@ public class Path extends Activity{
         int commaCount = 0;
 
         for(int j = 0; j < edges.length(); j++) {
-            if (edges.substring(j,j+1) == "`") {
+            if (edges.substring(j,j+1).equals("`")) {
                 commaCount++;
                 if (commaCount == 3) {
                     commaCount = 0;
@@ -343,7 +341,7 @@ public class Path extends Activity{
         int tempDirection = 0, tempDistance = 0;
         path.replace("[", ""); path.replace("]", "");
         for (int j = 0; j < path.length(); j++) {
-            if (path.substring(j,j+1) == "`") {
+            if (path.substring(j,j+1).equals("`")) {
                 commaCount++;
                 if (commaCount == 1) {
                     tempDirection = Integer.parseInt(path.substring(i,j));
