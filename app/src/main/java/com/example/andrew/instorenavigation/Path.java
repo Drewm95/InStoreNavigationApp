@@ -260,25 +260,23 @@ public class Path extends Activity{
 
         //Format path to pass to queryNodes.
         String nodesFormatted = "";
-        int[] startToFin = new int[nodeCount];
 
-        for (int i = 0; i < nodeCount; i++) {
-            if (i == 0) {
-                nodesFormatted += start + "`";
-                startToFin[i] = Integer.parseInt(start);
+        Node previousNode = nodes[0];
+        Node currentNode = previousNode.getConnections().get(0);
+
+        nodesFormatted += start + "`";
+        for (int i = 1; i < nodeCount; i++) {
+            if (currentNode.getConnections().size() == 1) {
+                nodesFormatted += currentNode.getConnections().get(0).getId() + "`";
             } else {
-                ArrayList<Node> temp = nodes[i].getConnections();
-
-                if (temp.size() == 1) {
-                    nodesFormatted += nodes[i].getId() + "`";
+                if (currentNode.getConnections().get(0) == previousNode) {
+                    nodesFormatted += currentNode.getConnections().get(1).getId() + "`";
+                    previousNode = currentNode;
+                    currentNode = currentNode.getConnections().get(1);
                 } else {
-                    if (temp.get(0).getId() == startToFin[i - 1]) {
-                        nodesFormatted += temp.get(1).getId() + "`";
-                        startToFin[i] = temp.get(1).getId();
-                    } else {
-                        nodesFormatted += temp.get(0).getId() + "`";
-                        startToFin[i] = temp.get(0).getId();
-                    }
+                    nodesFormatted += currentNode.getConnections().get(0).getId() + "`";
+                    previousNode = currentNode;
+                    currentNode = currentNode.getConnections().get(0);
                 }
             }
         }

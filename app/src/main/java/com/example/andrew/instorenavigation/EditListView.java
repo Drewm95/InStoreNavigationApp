@@ -170,8 +170,6 @@ public class EditListView extends AppCompatActivity {
                         if(response.length() > 1){
                             items.add(key3);
                             loadTaskList();
-
-
                         }
 
                     }
@@ -189,7 +187,7 @@ public class EditListView extends AppCompatActivity {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("List_Name", key1);
                 params.put("Users_UserID", key2);
-              //  params.put("Product_Name", key3);
+                params.put("Product_Name", key3);
 
                 return params;
             }
@@ -352,6 +350,12 @@ public class EditListView extends AppCompatActivity {
         };
 
         queue.add(postRequest);
+    }
+
+    public void back(final View v) {
+        Intent intent = new Intent(this, ListView.class);
+        intent.putExtra("userID", userID );
+        startActivity(intent);
     }
 
 }
