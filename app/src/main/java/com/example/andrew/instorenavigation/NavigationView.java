@@ -21,16 +21,15 @@ import android.widget.TextView;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class NavigationView extends AppCompatActivity implements SensorEventListener {
 
     //declare the sensor manager
     private SensorManager sensorManager;
-    private Sensor mAccel,mMag;
+    private Sensor mAccel,mMag, mla;
     private int stepCount, stepSense, targetDistance, turnCode, navStep;
     private Date lastUpdate;
     private float lastZ, newZ,newX, newY, lastx, lasty,stepDistRatio;
@@ -39,9 +38,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     public static float[] mAccelerometer = null;
     public static float[] mGeomagnetic = null;
     private ImageView arrow;
-    private String instructionString;
-    private Map<Integer, Integer> directions = new HashMap<>();
-
+    private Integer instructionString;
+    private ArrayList<int[]> directionList = new ArrayList<int[]>();
+    private boolean turnComplete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +55,8 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             pathString = parentIntent.getStringExtra("Path");
         }
 
+        azimuth = 0;
+        turnComplete = false;
 
         //parse the path
         parseDetailedPath(pathString);
@@ -96,6 +97,19 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         }
 
 
+        //get the default step counter from the sm
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null) {
+            //there is a step counter
+
+            mla = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+
+        } else {
+
+
+
+        }
+
+
         //set all of the required initial last acceleration values
         lastZ = 0; //TODO do this better
         lastx= 0;
@@ -113,6 +127,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         super.onResume();
         sensorManager.registerListener(this, mAccel , SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, mMag, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, mla, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -124,10 +139,6 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     @Override
     public void onSensorChanged(SensorEvent event) {
         /*
-
-        ACCELEROMETER SENSOR CHANGE
-
-         */
         if(event.sensor == mAccel) {
 
             //assign the new event values to the accelerometer array for use with finding direction
@@ -138,7 +149,6 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             newX = event.values[0];
             newY = event.values[1];
             newZ = event.values[2];
-
             //check if the new value is much different than the last one
             if (newZ + newX + newY > lastZ + lastx + lasty + stepSense) {
 
@@ -146,12 +156,78 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 //if not don't count it, people don't walk that fast
                 if (Calendar.getInstance().getTimeInMillis() > lastUpdate.getTime() + 500) {
                     //A step was detected
+                    stepDetected.setVisibility(View.VISIBLE);
                     stepCount++;
-                    //stepCountView.setText(Integer.toString(stepCount));
+                    stepCountView.setText(Float.toString(stepCount));
+                    lastUpdate = Calendar.getInstance().getTime();
+                }
+            } else {
+                stepDetected.setVisibility(View.INVISIBLE);
+            }
+
+            //report other readings
+            if (newX > lastx + 0.1 || newX < lastx - 0.1)
+                x.setText(Float.toString(event.values[0]));
+            if (newY > lasty + 0.1 || newY < lasty - 0.1)
+                y.setText(Float.toString(event.values[1]));
+            if (newZ > lastZ + 0.1 || newZ < lastZ - 0.1)
+                z.setText(Float.toString(event.values[2]));
+
+            //get the average z
+            count++;
+            zSum += newZ;
+            avgZ = zSum / count;
+            avgZText.setText(Float.toString(avgZ));
+
+            //assign value to lastxyz before moving on
+            lastZ = newZ;
+            lastx = newX;
+            lasty = newY;
+        }
+
+        */
+
+        if (event.sensor == mMag) {
+
+            //assign the new event values to the magnetometer array for use with finding direction
+            mGeomagnetic = event.values;
+
+        }
+
+        if (event.sensor == mAccel) {
+
+            //assign the new event values to the magnetometer array for use with finding direction
+            mAccelerometer = event.values;
+
+        }
+/*
+        if (event.sensor == mstep) {
+
+            stepCountReal++;
+           countChecker.setText(Float.toString(stepCountReal));
+        }
+        */
+
+        if(event.sensor == mla){
+
+            newX = event.values[0];
+            newY = event.values[1];
+            newZ = event.values[2];
+            //check if the new value is much different than the last one
+            if (newZ   > lastZ  + stepSense) {
+
+                //make sure it has been at least 10 milliseconds since the last step count
+                //if not don't count it, people don't walk that fast
+                if (Calendar.getInstance().getTimeInMillis() > lastUpdate.getTime() + 500) {
+                    //A step was detected
+                    stepCount++;
                     lastUpdate = Calendar.getInstance().getTime();
                     updateArrow();
                 }
+            } else {
+
             }
+
 
             //assign value to lastxyz before moving on
             lastZ = newZ;
@@ -161,27 +237,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
         /*
 
-        MAG FIELD SENSOR CHANGE
+        TEST CODE FOR GETTING DIRECTIONS USING THE MAGNETIC FIELD SENSOR
 
          */
-
-        if (event.sensor == mMag) {
-
-            //assign the new event values to the magnetometer array for use with finding direction
-            mGeomagnetic = event.values;
-
-        }
-
-
-        /*
-
-        GET DIRECTION USING THE MAGNETIC FIELD SENSOR
-
-         */
-
-        azimuth = 0;
-        double pitch = 0;
-        double roll = 0;
 
         if (mAccelerometer != null && mGeomagnetic != null) {
             float R[] = new float[9];
@@ -192,21 +250,21 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation);
                 // at this point, orientation contains the azimuth(direction), pitch and roll values.
-                azimuth = 180 * orientation[0] / Math.PI;
-                pitch = 180 * orientation[1] / Math.PI;
-                roll = 180 * orientation[2] / Math.PI;
+                azimuth = (double)(180 * orientation[0] / Math.PI);
+
+            }
+
+            if (Calendar.getInstance().getTimeInMillis() > lastUpdate.getTime() + 500) {
+                //A step was detected
+                //lastUpdate = Calendar.getInstance().getTime();
+                updateArrow();
             }
 
 
         }
 
-        /*
-        UPDATE THE NAV SCREEN AND CHECK FOR UPDATED DIRECTIONS
-         */
-
-        updateArrow();
-
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -225,89 +283,118 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     private void updateArrow(){
 
-        if(stepCount >= targetDistance / stepDistRatio && turnCode == 0) {
-            arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-            arrow.setRotation(0);
-            navStep++;
-            CheckNavigation();
-
-        }
-        else{
+        //Forward
+        if(turnCode == 0) {
             arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
             arrow.setRotation(0);
+
+            if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+
+                //Update instructions
+                navStep++;
+                stepCount = 0;
+                CheckNavigation();
+
+            }
         }
 
-        if(turnCode == 1 && Math.abs(azimuth - azumuthStart) >= 90 ) { //left Turn //TODO this just detects a 90 degree turn, does not account for direction.
-            navStep++;
-            CheckNavigation();
-            //navarrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-            //navarrow.setRotation(270);
+        //Right
+
+        if(turnCode == 1) {
+
+            //check if they completed the turn
+            if(!turnComplete) {
+                arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
+                arrow.setRotation(90);
+                instructionView.setText("Turn Right Now");
+
+                if(azimuth > azumuthStart + 90) {
+                    arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
+                    arrow.setRotation(90);
+                    turnComplete = true;
+                }
+            }
+            //now check if they completed the distance portion
+            else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+
+                //Update instructions
+                navStep++;
+                stepCount = 0;
+                turnComplete = false;
+                CheckNavigation();
+
+            }
         }
-        else if(turnCode == 1){
-            arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-            arrow.setRotation(270);
+
+        //Right
+
+        if(turnCode == 3) {
+
+            //check if they completed the turn
+            if(!turnComplete) {
+                arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
+                arrow.setRotation(90);
+                instructionView.setText("Turn Right Now");
+
+                if(azimuth > azumuthStart + 270) {
+                    arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
+                    arrow.setRotation(90);
+                    turnComplete = true;
+                }
+            }
+            //now check if they completed the distance portion
+            else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+
+                //Update instructions
+                navStep++;
+                stepCount = 0;
+                turnComplete = false;
+                CheckNavigation();
+
+            }
         }
-        if (turnCode == 2 && Math.abs(azimuth - azumuthStart) >= 90 ) { //right turn
-            navStep++;
-            CheckNavigation();
-            //navarrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-            //navarrow.setRotation(90);
-        }
-        else if(turnCode == 2){
-            arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-            arrow.setRotation(90);
-        }
+
     }
 
     private void demoSetup(){
-        //This method is to set all the variables needed to run a demo without a map or db connection
-        //first tell the user to walk forward 10 steps
+
         navStep = 0;
+        CheckNavigation();
+        updateArrow();
     }
 
     protected void CheckNavigation(){
-        //forward 10 feet
-        if (navStep == 0){
-            updateNav(120, 0);
+        int directionArray[] = new int[2];
+        if(navStep < directionList.size()) {
+            directionArray = directionList.get(navStep);
+            updateNav(directionArray[0], directionArray[1]);
         }
-        //turn right
-        if (navStep == 1){
-            updateNav(0, 2);
+        else{
+            finish();
         }
-        //forward 5 feet
-        if (navStep == 2){
-            updateNav(60, 0);
-        }
-        //turn left
-        if (navStep == 3){
-            updateNav(0, 1);
-        }
-        //forward 5 feet
-        if (navStep == 4){
-            updateNav(60, 0);
-        }
+
     }
 
     protected void updateNav(int distance, int tcode){
+        //Update the global variables and the navarrow indicator
+        targetDistance = distance;
+        turnCode = tcode;
+        azumuthStart = azimuth;
 
         //create the instruction string
         if(turnCode == 0){
-            instructionView.setText("Walk Forward " + distance / 12 + " feet.");
+            instructionView.setText("Walk Forward " + distance / 12 + " feet");
+        }
+        else if( turnCode == 3){
+            instructionView.setText("Turn Left in "+ distance / 12 + " feet");
+
         }
         else if( turnCode == 1){
-            instructionView.setText("Turn Left");
-
-        }
-        else if( turnCode == 2){
-            instructionView.setText("Turn Right");
+            instructionView.setText("Turn Right in "+ distance / 12 + " feet");
 
         }
 
-        //Update the global variables and the navarrow indicator
-
-        targetDistance = distance;
-        turnCode = tcode;
-        azumuthStart = azimuth; //we need to know what angle the phone was at the start so we know when they complete the turn
+       //we need to know what angle the phone was at the start so we know when they complete the turn
     }
 
 
@@ -325,7 +412,8 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 } else {
                     commaCount = 0;
                     tempDistance = Integer.parseInt(temp.substring(i,j));
-                    directions.put(tempDirection, tempDistance);
+                    int tempArray[] = new int[]{tempDistance, tempDirection};
+                    directionList.add(tempArray);
                 }
                 i = j+1;
             }
