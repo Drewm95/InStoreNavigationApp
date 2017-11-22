@@ -25,7 +25,9 @@ public class Node {
 
     //Instantiate the node with the limit (2) and create the edge and connection lists
     Node(int id) {
-
+        if (id == 0) {
+            limit = 1;
+        }
         //starting node will need a limit one
         this.id = id;
 
