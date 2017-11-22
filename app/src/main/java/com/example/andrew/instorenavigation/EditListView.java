@@ -34,7 +34,6 @@ import java.util.Map;
 
 public class EditListView extends AppCompatActivity {
 
-    ItemDbHelper itemDbHelper;
     ArrayAdapter<String> mAdapter;
     android.widget.ListView lstTask;
 
@@ -47,7 +46,6 @@ public class EditListView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_list_view);
         context = this;
-        //itemDbHelper = new ItemDbHelper(this);
 
         lstTask = findViewById(R.id.edit_list);
         Intent loginID = getIntent();
@@ -68,7 +66,6 @@ public class EditListView extends AppCompatActivity {
 
     // ---------- Load Task List ----------
     private void loadTaskList() {
-       // ArrayList<String> taskList = itemDbHelper.getTaskList();
         if(mAdapter==null){
             mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.item_title,items);
             lstTask.setAdapter(mAdapter);//Populates the contents of the EditListView
@@ -76,8 +73,6 @@ public class EditListView extends AppCompatActivity {
         else{
             mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.item_title,items);
             lstTask.setAdapter(mAdapter);//Populates the contents of the EditListView
-           // mAdapter.clear();
-          //  mAdapter.addAll(items);
             mAdapter.notifyDataSetChanged();
         }
     }
