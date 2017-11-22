@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -35,6 +36,7 @@ public class StoreView extends AppCompatActivity {
     String listName;
     String UID;
 
+    private String productString;
     private ArrayList<String> stores;
     private ArrayList<String> storeIDs;
     private Context context;
@@ -53,13 +55,14 @@ public class StoreView extends AppCompatActivity {
         storeNames = findViewById(R.id.storeList);
 
         Intent load = getIntent();
-        listName = load.getStringExtra("ListName");
+        productString = load.getStringExtra("ProductsString");
         UID = load.getStringExtra("UserID");
+        listName = load.getStringExtra("ListName");
         super.setTitle("Select Store: " + listName);
 
 
-
-        queryItems();
+        parseItemNames(productString);
+        //queryItems();
     }
 
     public void loadTaskList() {
@@ -86,7 +89,6 @@ public class StoreView extends AppCompatActivity {
                 storeNames.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
-
                         path(pos);
                     }
                 });
@@ -157,6 +159,12 @@ public class StoreView extends AppCompatActivity {
 
                         if(response.length() >= 1){
                             Path path = new Path(storeID, products, response, context);
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "Calculating Path. Please Wait.";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
                         }
                     }
                 },
@@ -172,50 +180,6 @@ public class StoreView extends AppCompatActivity {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Store_SID", storeID);
-
-                return params;
-            }
-        };
-        queue.add(postRequest);
-    }
-
-
-
-
-
-    private void queryItems() {
-        //Connect to the database and authenticate
-        RequestQueue queue = Volley.newRequestQueue(context);
-        String responseValue = null;
-
-
-        String url = "http://34.238.160.248/GetListContent.php";
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // response
-                        Log.d("Response", response);
-
-                        if(response.length() >= 1){
-                            parseItemNames(response);
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // error
-                        Log.d("Error.Response", error.toString());
-                    }
-                }
-        ) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("List_Name", listName);
-                params.put("Users_UserID", UID);
-                //  params.put("Product_Name", items.);
 
                 return params;
             }

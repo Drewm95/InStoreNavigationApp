@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -157,15 +158,14 @@ public class ListView extends AppCompatActivity {
     }
 
     public void storeSelect(View view) {
+
+
         View parent = (View)view.getParent();
         TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
         Log.e("String", (String) taskTextView.getText());
         String task = String.valueOf(taskTextView.getText());
 
-        Intent i = new Intent(this, StoreView.class);
-        i.putExtra("ListName", task);
-        i.putExtra("UserID", userID);
-        startActivity(i);
+        queryItems(task);
     }
 
     public void addList(final String key1, final String key2, Context context) {
@@ -185,6 +185,12 @@ public class ListView extends AppCompatActivity {
                         if(response.length() >= 1){
                             LID = response;
                             lists.add(key1);
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "List " + key1 + " successfully created.";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
                             loadTaskList();
                         }
 
@@ -226,7 +232,22 @@ public class ListView extends AppCompatActivity {
 
                         if(response.length() > 3){
                             lists.remove(Name);
+
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "List " + Name + " successfully deleted.";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
+
                             loadTaskList();
+                        } else {
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "An Unexpected Error Occurred";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
                         }
 
                     }
@@ -293,6 +314,53 @@ public class ListView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
+    private void queryItems(final String listName) {
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/GetListContent.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.equals("Bad")){
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "Cannot Navigate Empty List";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
+                        } else {
+                            goToStoreView(response, listName);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("List_Name", listName);
+                params.put("Users_UserID", userID);
+                //  params.put("Product_Name", items.);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
     private void parseListNames(String lists) {
         int i = 0;
 
@@ -309,4 +377,11 @@ public class ListView extends AppCompatActivity {
         loadTaskList();
     }
 
+    private void goToStoreView(String productString, String listName) {
+        Intent i = new Intent(this, StoreView.class);
+        i.putExtra("ProductsString", productString);
+        i.putExtra("UserID", userID);
+        i.putExtra("ListName", listName);
+        startActivity(i);
+    }
 }

@@ -69,8 +69,6 @@ public class EditListView extends AppCompatActivity {
     // ---------- Load Task List ----------
     private void loadTaskList() {
        // ArrayList<String> taskList = itemDbHelper.getTaskList();
-
-
         if(mAdapter==null){
             mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view,R.id.item_title,items);
             lstTask.setAdapter(mAdapter);//Populates the contents of the EditListView
@@ -137,7 +135,7 @@ public class EditListView extends AppCompatActivity {
                         TextView taskTextView = (TextView)parent.findViewById(R.id.item_title);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
-                        deleteItem(listName, userID, task,context);
+                        deleteItem(listName, userID, task, context);
                         loadTaskList();
                     }
                 })
@@ -209,12 +207,24 @@ public class EditListView extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         // response
-                        Log.d("Response", response);
+                        if (response.equals("Bad")) {
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "An Unexpected Error Occurred";
+                            int duration = Toast.LENGTH_SHORT;
 
-                        items.remove(item);
-                        loadTaskList();
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
+                        } else {
+                            Log.d("Response", response);
+                            Context appContext = getApplicationContext();
+                            CharSequence text = item + " removed from list.";
+                            int duration = Toast.LENGTH_SHORT;
 
-
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
+                            items.remove(item);
+                            loadTaskList();
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -228,7 +238,7 @@ public class EditListView extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-              //  params.put("Users_UserID", userID);
+                params.put("Users_UserID", userID);
                 params.put("List_Name", ListName);
                 params.put("Product_Name", item);
 
@@ -319,6 +329,12 @@ public class EditListView extends AppCompatActivity {
 
                         if (response.equals(item)) {
                             addItems(listName, userID, item, context);//Adds item to the list if in the database
+                            Context appContext = getApplicationContext();
+                            CharSequence text = item + " added to list.";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
                             loadTaskList();
                         } else {
                             Context appContext = getApplicationContext();
