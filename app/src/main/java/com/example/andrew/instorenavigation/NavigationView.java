@@ -8,13 +8,14 @@
  */
 package com.example.andrew.instorenavigation;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,7 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NavigationView extends Activity implements SensorEventListener {
+public class NavigationView extends AppCompatActivity implements SensorEventListener {
 
     //declare the sensor manager
     private SensorManager sensorManager;
@@ -34,19 +35,30 @@ public class NavigationView extends Activity implements SensorEventListener {
     private Date lastUpdate;
     private float lastZ, newZ,newX, newY, lastx, lasty,stepDistRatio;
     private double azumuthStart, azimuth;
-    private TextView stepCountView, instructionView;
+    private TextView  instructionView;
     public static float[] mAccelerometer = null;
     public static float[] mGeomagnetic = null;
     private ImageView arrow;
     private String instructionString;
-
+    private Map<Integer, Integer> directions = new HashMap<>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //get the extra
+        Intent parentIntent = getIntent();
 
+        //the path string
+        String pathString = "";
+        if(parentIntent.hasExtra("Path")){
+            pathString = parentIntent.getStringExtra("Path");
+        }
+
+
+        //parse the path
+        parseDetailedPath(pathString);
 
         //set strideLength
         stepDistRatio = 24; //Stride length of 2 feet
@@ -135,7 +147,7 @@ public class NavigationView extends Activity implements SensorEventListener {
                 if (Calendar.getInstance().getTimeInMillis() > lastUpdate.getTime() + 500) {
                     //A step was detected
                     stepCount++;
-                    stepCountView.setText(Integer.toString(stepCount));
+                    //stepCountView.setText(Integer.toString(stepCount));
                     lastUpdate = Calendar.getInstance().getTime();
                     updateArrow();
                 }
@@ -300,7 +312,6 @@ public class NavigationView extends Activity implements SensorEventListener {
 
 
     private void parseDetailedPath (String path) {
-        Map<Integer, Integer> directions = new HashMap<>();
         int i = 0;
         int commaCount = 0;
         int tempDirection = 0, tempDistance = 0;

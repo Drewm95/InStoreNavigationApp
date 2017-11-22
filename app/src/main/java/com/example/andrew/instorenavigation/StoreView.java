@@ -1,8 +1,10 @@
 package com.example.andrew.instorenavigation;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -260,13 +262,7 @@ public class StoreView extends AppCompatActivity {
 
     public void path(final int position) {
 
-        storeID = storeIDs.get(position);
 
-        queryStart();
-
-
-
-/*
         AlertDialog dialog = new AlertDialog.Builder(this) //Create prompt to ask if user wants to delete a itemlist
                 .setMessage("Do you want to navigate this store?") //Prompt message for user
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -277,7 +273,7 @@ public class StoreView extends AppCompatActivity {
                         TextView taskTextView = (TextView)parent.findViewById(R.id.store_ID);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
-
+*/
                         storeID = storeIDs.get(position);
 
                         queryStart();
@@ -287,6 +283,13 @@ public class StoreView extends AppCompatActivity {
                 .create();
         dialog.show();
 
-       */
+
+    }
+
+    public void goToNavView(String path){
+        //Switch view to the navigation view
+        Intent intent = new Intent(context, NavigationView.class);
+        intent.putExtra("Path", path);
+        startActivity(intent);
     }
 }

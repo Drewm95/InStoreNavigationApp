@@ -2,7 +2,6 @@ package com.example.andrew.instorenavigation;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -33,7 +32,7 @@ public class Path extends Activity{
     private String start;
     private ArrayList<String> products;
     private String Store_ID;
-    private Context context;
+    final private Context context;
 
     //Every even number will be a diatance, and every odd number will be a direction associated with
         //the distance before hand.
@@ -160,10 +159,9 @@ public class Path extends Activity{
                         Log.d("Response", response);
 
                         if(response.length() >= 1){
-                            //Switch view to the navigation view
-                            Intent intent = new Intent(context, NavigationView.class);
-                            intent.putExtra("Path", response);
-                            startActivity(intent);
+                            if(context instanceof StoreView){
+                                ((StoreView)context).goToNavView(response);
+                            }
                         }
                     }
                 },
@@ -330,4 +328,6 @@ public class Path extends Activity{
         }
         this.calculatePath();
     }
+
+
 }
