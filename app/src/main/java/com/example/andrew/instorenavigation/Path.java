@@ -144,7 +144,7 @@ public class Path extends Activity{
         queue.add(postRequest);
     }
 
-    private void queryPath(final String Node_IDs, final String storeId, Context context) {
+    private void queryPath(final String Node_IDs, final String storeId, final Context context) {
 
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -160,7 +160,10 @@ public class Path extends Activity{
                         Log.d("Response", response);
 
                         if(response.length() >= 1){
-                            parseDetailedPath(response);
+                            //Switch view to the navigation view
+                            Intent intent = new Intent(context, NavigationView.class);
+                            intent.putExtra("Path", response);
+                            startActivity(intent);
                         }
                     }
                 },
@@ -176,7 +179,7 @@ public class Path extends Activity{
             protected Map<String, String> getParams() {
 
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Node_IDs", Node_IDs);
+                params.put("Node_NIDs", Node_IDs);
                 params.put("Store_SID", storeId);
 
                 return params;
@@ -195,16 +198,14 @@ public class Path extends Activity{
 
         nodes = new Node[nodeCount];
 
-        //Start node will be the parent to everything, thusly not having a parent
-        parent[0] = -1;
-
         //All other nodes are not connected, parent of -1
-        for (int i = 1; i < nodeCount-1; i++) {
-            parent[i] = -1;
+        for (int i = 0; i < nodeCount; i++) {
+            parent[i] = 0;
         }
 
         for (int i = 0; i < nodeCount; i++) {
             nodes[i] = new Node(i);
+            nodes[i].setID(nodeEdgeData[i][i]);
         }
 
         //Print out the matrix
@@ -218,13 +219,13 @@ public class Path extends Activity{
         System.out.println("\n");
 
         //Continue loop until path is found
-        while (edgeCount < nodeCount - 1) {
-            min = -1;
+        while (edgeCount < nodeCount-1) {
+            min = Integer.MAX_VALUE;
             for(int i = 0; i < nodeCount; i++) {
                 if (!nodes[i].atCap()) {
                     for(int j = i+1; j < nodeCount; j++) {
                         if (!nodes[j].atCap()) {
-                            if (nodeEdgeData[i][j] < min || min == -1) {
+                            if (nodeEdgeData[i][j] < min) {
                                 min = nodeEdgeData[i][j];
                                 u = i;
                                 v = j;
@@ -237,14 +238,14 @@ public class Path extends Activity{
             int temp1 = u;
             int temp2 = v;
 
-            nodeEdgeData[u][v] = nodeEdgeData[v][u] = -1;
+            nodeEdgeData[u][v] = nodeEdgeData[v][u] = Integer.MAX_VALUE;
 
             //These while loops are used to find the root of the tree and set it as the parent of the newly connected node
             //this is used to find the root element of each node tree
-            while(parent[u] != -1) {
+            while(parent[u] != 0) {
                 u = parent[u];
             }
-            while(parent[v] != -1) {
+            while(parent[v] != 0) {
                 v = parent[v];
             }
 
@@ -265,25 +266,21 @@ public class Path extends Activity{
 
         for (int i = 0; i < nodeCount; i++) {
             if (i == 0) {
-                nodesFormatted += start;
+                nodesFormatted += start + "`";
                 startToFin[i] = Integer.parseInt(start);
             } else {
                 ArrayList<Node> temp = nodes[i].getConnections();
 
-                if (temp.get(0).getId() == startToFin[i - 1]) {
-                    if (i == nodeCount - 1) {
-                        nodesFormatted += temp.get(1).getId();
-                    } else {
-                        nodesFormatted += temp.get(1).getId() + ",";
-                    }
-                    startToFin[i] = temp.get(1).getId();
+                if (temp.size() == 1) {
+                    nodesFormatted += nodes[i].getId() + "`";
                 } else {
-                    if (i == nodeCount - 1) {
-                        nodesFormatted += temp.get(0).getId();
+                    if (temp.get(0).getId() == startToFin[i - 1]) {
+                        nodesFormatted += temp.get(1).getId() + "`";
+                        startToFin[i] = temp.get(1).getId();
                     } else {
-                        nodesFormatted += temp.get(0).getId() + ",";
+                        nodesFormatted += temp.get(0).getId() + "`";
+                        startToFin[i] = temp.get(0).getId();
                     }
-                    startToFin[i] = temp.get(0).getId();
                 }
             }
         }
@@ -332,31 +329,5 @@ public class Path extends Activity{
             }
         }
         this.calculatePath();
-    }
-
-    private void parseDetailedPath (String path) {
-        HashMap<Integer, Integer> directions = new HashMap<>();
-        int i = 0;
-        int commaCount = 0;
-        int tempDirection = 0, tempDistance = 0;
-        path.replace("[", ""); path.replace("]", "");
-        for (int j = 0; j < path.length(); j++) {
-            if (path.substring(j,j+1).equals("`")) {
-                commaCount++;
-                if (commaCount == 1) {
-                    tempDirection = Integer.parseInt(path.substring(i,j));
-                } else {
-                    commaCount = 0;
-                    tempDistance = Integer.parseInt(path.substring(i,j));
-                    directions.put(tempDirection, tempDistance);
-                }
-                i = j+1;
-            }
-        }
-
-        //Switch view to the navigation view
-        Intent intent = new Intent(context, NavigationView.class);
-        intent.putExtra("Path", directions);
-        startActivity(intent);
     }
 }

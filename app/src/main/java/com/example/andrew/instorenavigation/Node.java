@@ -28,9 +28,6 @@ public class Node {
 
         //starting node will need a limit one
         this.id = id;
-        if(id == 0) {
-            this.limit = 1;
-        }
 
         edges = new ArrayList<Integer>();
         connections = new ArrayList<Node>();
@@ -52,6 +49,10 @@ public class Node {
     //another node.
     public boolean atCap() {
         return atCap;
+    }
+
+    public void setID(int id) {
+        this.id = id;
     }
 
     public ArrayList<Node> getConnections() {

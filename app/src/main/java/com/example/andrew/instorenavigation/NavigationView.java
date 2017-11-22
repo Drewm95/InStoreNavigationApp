@@ -22,6 +22,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NavigationView extends Activity implements SensorEventListener {
 
@@ -297,6 +299,29 @@ public class NavigationView extends Activity implements SensorEventListener {
     }
 
 
+    private void parseDetailedPath (String path) {
+        Map<Integer, Integer> directions = new HashMap<>();
+        int i = 0;
+        int commaCount = 0;
+        int tempDirection = 0, tempDistance = 0;
+        String temp = path.replace("[", ""); temp = temp.replace("]", "");
+
+        for (int j = 0; j < temp.length(); j++) {
+            if (temp.substring(j,j+1).equals(",")) {
+                commaCount++;
+                if (commaCount == 1) {
+                    tempDirection = Integer.parseInt(temp.substring(i,j));
+                } else {
+                    commaCount = 0;
+                    tempDistance = Integer.parseInt(temp.substring(i,j));
+                    directions.put(tempDirection, tempDistance);
+                }
+                i = j+1;
+            }
+        }
+
+
+    }
 
 }
 
