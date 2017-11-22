@@ -308,9 +308,10 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 arrow.setRotation(90);
                 instructionView.setText("Turn Right Now");
 
-                if(azimuth > azumuthStart + 90) {
-                    arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-                    arrow.setRotation(90);
+                if((azimuth < azumuthStart - 90 && azumuthStart > 90) || (azimuth < azumuthStart + 270 && azimuth > 0 && azumuthStart < 90))  {
+                    arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
+                    arrow.setRotation(0);
+                    instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
                     turnComplete = true;
                 }
             }
@@ -333,12 +334,14 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             //check if they completed the turn
             if(!turnComplete) {
                 arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-                arrow.setRotation(90);
-                instructionView.setText("Turn Right Now");
+                arrow.setRotation(270);
+                instructionView.setText("Turn Left Now");
 
-                if(azimuth > azumuthStart + 270) {
-                    arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-                    arrow.setRotation(90);
+                if((azimuth > azumuthStart + 90 && azumuthStart < 90) || (azimuth > azumuthStart -270 && azimuth < 0 && azumuthStart > 90))  {
+
+                    arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
+                    arrow.setRotation(0);
+                    instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
                     turnComplete = true;
                 }
             }
