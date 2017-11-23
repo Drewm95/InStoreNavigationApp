@@ -1,6 +1,10 @@
-//***********************************************
+/************************************************************************************************
+ EDIT LIST VIEW WILL ALLOW THE USER TO ADD AND DELETE ITEMS INSIDE OF A SELECTED LIST. THE NAME
+ OF THE LIST WILL BE DISPLAYED AS TEH TITLE OF THE VIEW. A USER MUST ENTER THE PRODUCT NAME VIA
+ TEXT FIELD. IT CURRENTLY ALLOWS FOR ANY INPUT AND HAS NO AUTOCOMPLETE, BUT THE ADDITION WILL ONLY
+ OCCUR IF A PRODUCT IS WITHIN THE DATABASE.
+ ***********************************************************************************************/
 package com.example.andrew.instorenavigation;
-
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,15 +34,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
 public class EditListView extends AppCompatActivity {
 
+    //Adapter is used to display every item contained within a list.
     ArrayAdapter<String> mAdapter;
     android.widget.ListView lstTask;
 
+    //Variables passed forward from previous view.
     private String userID, listName;
+
     private Context context;
+    //Arraylist to hold all items inside of the list.
     private ArrayList<String> items;
 
     @Override
@@ -50,17 +56,15 @@ public class EditListView extends AppCompatActivity {
         lstTask = findViewById(R.id.edit_list);
         Intent loginID = getIntent();
 
-        if(loginID.hasExtra("UserID")){
-            userID = loginID.getStringExtra("UserID");
-        }
-        if(loginID.hasExtra("ListName")){
-            listName = loginID.getStringExtra("ListName");
-            super.setTitle(listName);
-        }
-        //TODO Add an error message if the extras are not present and kick user back to list view
+        //Pull the passed forward data fro List View.
+        userID = loginID.getStringExtra("UserID");
+        listName = loginID.getStringExtra("ListName");
+        //Set title to the list being edited.
+        super.setTitle(listName);
 
+        //Instantiate items array.
         items = new ArrayList<>();
-        this.setTitle(listName);
+
         queryItems();
     }
 
@@ -303,16 +307,13 @@ public class EditListView extends AppCompatActivity {
 
         loadTaskList();
     }
-    //Result is the value for the item being tested
-    boolean result;
+
     // ---------- Test to see if item is in the database ----------
     private void testItem (final String item){
 
-        //result[0] = true;
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
         String responseValue = null;
-
 
         String url = "http://34.238.160.248/CheckProduct.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
@@ -352,10 +353,7 @@ public class EditListView extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                //params.put("List_Name", key1);
-               // params.put("Users_UserID", key2);
-                 params.put("Product_Name", item);
-
+                params.put("Product_Name", item);
                 return params;
             }
         };
@@ -363,10 +361,10 @@ public class EditListView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
+    //When the done button is clicked, will finish EditList Activity and
+        //redirect user nack to ListView
     public void back(final View v) {
-        Intent intent = new Intent(this, ListView.class);
-        intent.putExtra("userID", userID );
-        startActivity(intent);
+        finish();
     }
 
 }

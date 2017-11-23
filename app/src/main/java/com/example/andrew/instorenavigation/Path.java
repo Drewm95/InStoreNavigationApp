@@ -1,3 +1,8 @@
+/**********************************************************************************************
+ THE PATH CLASS WILL BE AN INTERMEDIATE STEP BETWEEN STORE VIEW AND NAVIGATION VIEW THAT WILL
+ CALCULATE THE SHORTEST PATH FOR THE LIST USING THE STORE NAVIGATED.
+ *********************************************************************************************/
+
 package com.example.andrew.instorenavigation;
 
 import android.app.Activity;
@@ -15,14 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Andrew on 11/9/17.
- * Will parse JSON information and pass it to the node class so that nodes can be generated to
- * calculate a path.
- */
-
 public class Path extends Activity{
-
+    //Objects for mapping of edges and nodes
     private int nodeCount;
     private int[][] nodeEdgeData;
     private ArrayList<Integer> nodesVisited;
@@ -38,6 +37,7 @@ public class Path extends Activity{
         //the distance before hand.
     private ArrayList<Integer> route;
 
+    //Path constructor taking a store id, a start node, and products.
     Path(String StoreID, ArrayList<String> products, String start, Context context) {
         this.Store_ID = StoreID;
         this.products = products;
@@ -45,10 +45,11 @@ public class Path extends Activity{
         this.context = context;
         this.nodesVisited = new ArrayList<>();
 
-
+        //Add start node.
         nodesVisited.add(Integer.parseInt(start));
         nodeCount++;
 
+        //Put product names into a string to query for nodes containing products.
         String productNames= "";
         for (int i = 0; i < products.size(); i++) {
             if (i != products.size()-1) {
@@ -60,6 +61,7 @@ public class Path extends Activity{
         queryNodes(productNames, StoreID, context);
     }
 
+    //Find nodes that need to be traveled to.
     private void queryNodes(final String Product_Names, final String storeId, Context context) {
 
         //Connect to the database and authenticate
@@ -102,6 +104,7 @@ public class Path extends Activity{
         queue.add(postRequest);
     }
 
+    //Find all edges that connect the nodes.
     private void queryEdges(final String NodeIDs, final String storeId, Context context) {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -143,6 +146,7 @@ public class Path extends Activity{
         queue.add(postRequest);
     }
 
+    //After finding the shortest path, find the collection of real edges that must be navigated.
     private void queryPath(final String Node_IDs, final String storeId, final Context context) {
 
         //Connect to the database and authenticate
@@ -186,6 +190,7 @@ public class Path extends Activity{
         queue.add(postRequest);
     }
 
+    //Calculate shortest path using the edge lengths given by query Edges.
     private void calculatePath() {
 
         int[] parent = new int[this.nodeCount];
@@ -287,6 +292,7 @@ public class Path extends Activity{
         queryPath(nodesFormatted, Store_ID, context);
     }
 
+    //Parse node and store them into the nodeEdgeData
     private void parseNodes(String nodeString){
         int i = 0;
 
@@ -310,6 +316,7 @@ public class Path extends Activity{
         queryEdges(nodeString, Store_ID, context);
     }
 
+    //Parse edges and store them into the nodeEdgeData
     private void parseEdges (String edges){
         int [] nodeIDs = new int[nodeCount];
         ArrayList<Integer> edgeCollection = new ArrayList<>();
@@ -330,6 +337,4 @@ public class Path extends Activity{
         }
         this.calculatePath();
     }
-
-
 }

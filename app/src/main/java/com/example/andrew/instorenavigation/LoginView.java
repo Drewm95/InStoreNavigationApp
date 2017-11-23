@@ -1,8 +1,11 @@
 package com.example.andrew.instorenavigation;
 
-/*
- *The LoginView class will provide a login page for the user.
- */
+/***********************************************************************************************
+ THE LOGINVIEW CLASS WILL PROVIDE A LOGIN PAGE FOR THE USER. USER WILL BE ABLE TO ACCESS
+ CREATEACCOUNTVIEW THOROUGH THE REGISTER BUTTON. GIVEN VALID INPUTS FROM THE USER, THEY WILL
+ BE REDIRECTED TO THE LISTVIEW ACTIVITY. THE USERID WILL BE PASSED FORWARD FROM LOGIN
+ AUTHENTICATION.
+ **********************************************************************************************/
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,7 +24,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,17 +54,14 @@ public class LoginView extends Activity implements View.OnClickListener{
     }
 
 
+    //Login button calls for authentication
     @Override
     public void onClick(View v) {
         if(v == loginButton)
             AuthenticateLogin(v);
     }
 
-
-    /*
-    THIS AUTHENTICATES THE LOGIN WITH THE DATABASE
-     */
-
+    //Authentica login with information in the database.
     public void AuthenticateLogin(final View view) {
 
         //Get the email and password entered by the user
@@ -75,7 +74,7 @@ public class LoginView extends Activity implements View.OnClickListener{
         RequestQueue queue = Volley.newRequestQueue(this);
         String responseValue = null;
 
-
+        //Query through checkLogin.php
         String url = "http://34.238.160.248/checkLogin.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -84,6 +83,7 @@ public class LoginView extends Activity implements View.OnClickListener{
                         // response
                         Log.d("Response", response);
 
+                        //Unexpected response. Error on server side.
                         if(response.equals("Bad")){
                             Context appContext = getApplicationContext();
                             CharSequence text = "An Unexpected Error Occurred";
@@ -91,6 +91,8 @@ public class LoginView extends Activity implements View.OnClickListener{
 
                             Toast toast = Toast.makeText(appContext, text, duration);
                             toast.show();
+                        //Response returns empty string meaning that the user has entered
+                            //inlaid credentials/
                         } else if (response.equals("")){
                             Context appContext = getApplicationContext();
                             CharSequence text = "Email or Password is Incorrect";
@@ -98,7 +100,9 @@ public class LoginView extends Activity implements View.OnClickListener{
 
                             Toast toast = Toast.makeText(appContext, text, duration);
                             toast.show();
+                        //Response returns UserID meaning that the information is valid.
                         } else {
+                            //Login is valid so the ListView Activity is started.
                             userID = (response);
                             goToListView(view);
                         }
@@ -113,6 +117,7 @@ public class LoginView extends Activity implements View.OnClickListener{
                     }
                 }
         ) {
+            //Give inputs to php
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
@@ -126,15 +131,18 @@ public class LoginView extends Activity implements View.OnClickListener{
 
     }
 
+    //Start List View Activity.
     public void goToListView(View view) {
         //Switch view to the list view
         Intent intent = new Intent(this, ListView.class);
+        //Pass forward UserID to serve user specific information.
         intent.putExtra("userID", userID );
         startActivity(intent);
     }
 
+    //If "REGISTER" is clicked, start CreateAccount Activity
     public void register(View v) {
-        Intent intent = new Intent(this, CreateAccount.class);
+        Intent intent = new Intent(this, CreateAccountView.class);
         startActivity(intent);
     }
 }

@@ -1,6 +1,11 @@
-//***********************************************
-package com.example.andrew.instorenavigation;
+/********************************************************************************************
+ LIST VIEW IS THE FIRST SCREEN THAT A USER WILL COME TO AFTER LOGGING IN. FROM THIS SCREEN
+ THE USER CAN ADD A NEW LIST, DELETE A LIST, GET TO EDIT LIST USING THE EDIT BUTTON, AND
+ NAVIGATE A LIST BY USING THE NAVIGATION BUTTON.
 
+ NEED TO GO IN AND HAVE AN OPTION FOR LISTS THAT DON'T MATCH A STORE
+ *******************************************************************************************/
+package com.example.andrew.instorenavigation;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,59 +33,50 @@ import com.android.volley.toolbox.Volley;
 //import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
-
-/**
- * This code was created with the help of
- * https://www.youtube.com/watch?v=RXtj4TxMmW0
- */
 
 public class ListView extends AppCompatActivity {
-
+    //Objects to generate a field for each list.
     ArrayAdapter<String> mAdapter;
     android.widget.ListView lstNames;
 
+    //Variables passed forward from Login Activity
     private String userID;
     private Context context;
-    private String LID;
-    private ArrayList<String> lists;
 
-    @Override
-    public void setTitle(CharSequence title) {
-        super.setTitle("Your Lists");
-    }
+    //Container for lists.
+    private ArrayList<String> lists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_view);
         context = this;
+
+        //Instantiate list container
         lists = new ArrayList<>();
 
+        //Grab area where to place lists.
         lstNames = findViewById(R.id.lists);
+
+        //Store User_ID passed forward form login.
         Intent loginID = getIntent();
         userID = loginID.getStringExtra("userID");
 
+        //Set title of view.
+        super.setTitle("Your Lists");
+
+        //Query for each of the listS associated with the user.
         queryLists(userID, this);
     }
 
+    //Use the adapter to create an entry for each list.
     private void loadTaskList() {
-
         try {
-            if (mAdapter == null) {
-               mAdapter = new ArrayAdapter<String>(this, R.layout.generate_list_view, R.id.list_title, lists);
-               lstNames.setAdapter(mAdapter);
-            } else {
-                mAdapter = new ArrayAdapter<String>(this, R.layout.generate_list_view, R.id.list_title, lists);
-                lstNames.setAdapter(mAdapter);
-                mAdapter.notifyDataSetChanged();
-            }
-
+            mAdapter = new ArrayAdapter<String>(this, R.layout.generate_list_view, R.id.list_title, lists);
+            lstNames.setAdapter(mAdapter);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -124,7 +120,7 @@ public class ListView extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    //Method that will be used by the delete button
+    //Prompt used by delete button to ensure that the user wishes to remove the list.
     public void deleteTask(final View view){ //Method used to delete the generate_list_view selected
         AlertDialog dialog = new AlertDialog.Builder(this) //Create prompt to ask if user wants to delete a itemlist
                 .setMessage("Do you want to delete this itemlist?") //Prompt message for user
@@ -145,29 +141,33 @@ public class ListView extends AppCompatActivity {
         dialog.show();
     }
 
-    public void innerList(View view) {
+    //Method called on click of edit button.
+    public void editList(View view) {
         View parent = (View)view.getParent();
         TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
         Log.e("String", (String) taskTextView.getText());
         String task = String.valueOf(taskTextView.getText());
 
+        //Pass forward the user ID and the name of the list being edited.
         Intent i = new Intent(this, EditListView.class);
         i.putExtra("ListName", task);
         i.putExtra("UserID", userID);
         startActivity(i);
     }
 
+    //Method called on navigation click.
     public void storeSelect(View view) {
-
-
         View parent = (View)view.getParent();
         TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
         Log.e("String", (String) taskTextView.getText());
         String task = String.valueOf(taskTextView.getText());
 
+        //Will take the current list and query for the stores that hold all of the
+            //items.
         queryItems(task);
     }
 
+    //Query to insert the new list into the database.
     public void addList(final String key1, final String key2, Context context) {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -182,15 +182,34 @@ public class ListView extends AppCompatActivity {
                         // response
                         Log.d("Response", response);
 
-                        if(response.length() >= 1){
-                            LID = response;
+                        //Check to make sure that the list doesn't exist
+                        if(response.equals("List Already Exists.")){
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "List " + key1 + " already exists.";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
+                        //Unexpected error
+                        } else if (response.equals("Bad")){
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "An Unexpected Error Occurred.";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
+                        //List created Successfully.
+                        } else {
                             lists.add(key1);
+
                             Context appContext = getApplicationContext();
                             CharSequence text = "List " + key1 + " successfully created.";
                             int duration = Toast.LENGTH_SHORT;
 
                             Toast toast = Toast.makeText(appContext, text, duration);
                             toast.show();
+
+                            //Reload lists when creation is done.
                             loadTaskList();
                         }
 
@@ -216,6 +235,7 @@ public class ListView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
+    //Query to remove a list from a database.
     public void deleteList(final String Users_UserID, final String Name, Context context) {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -230,7 +250,7 @@ public class ListView extends AppCompatActivity {
                         // response
                         Log.d("Response", response);
 
-                        if(response.length() > 3){
+                        if(!response.equals("Bad")){
                             lists.remove(Name);
 
                             Context appContext = getApplicationContext();
@@ -240,6 +260,7 @@ public class ListView extends AppCompatActivity {
                             Toast toast = Toast.makeText(appContext, text, duration);
                             toast.show();
 
+                            //Reload lists when list is deleted.
                             loadTaskList();
                         } else {
                             Context appContext = getApplicationContext();
@@ -274,6 +295,7 @@ public class ListView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
+    //Query to get all lists associated with a user.
     private void queryLists(final String key1, Context context) {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -314,6 +336,7 @@ public class ListView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
+    //Query to get all items associated with a list.
     private void queryItems(final String listName) {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -361,6 +384,7 @@ public class ListView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
+    //Parse list names from query response.
     private void parseListNames(String lists) {
         int i = 0;
 
@@ -373,10 +397,10 @@ public class ListView extends AppCompatActivity {
             }
         }
 
-        this.setTitle("Your Lists");
         loadTaskList();
     }
 
+    //Method called after stores have been found for a list.
     private void goToStoreView(String productString, String listName) {
         Intent i = new Intent(this, StoreView.class);
         i.putExtra("ProductsString", productString);

@@ -1,3 +1,7 @@
+/*******************************************************************************************
+ STORE VIEW WILL BE ACCES
+ ******************************************************************************************/
+
 package com.example.andrew.instorenavigation;
 
 import android.content.Context;
@@ -22,10 +26,6 @@ import com.android.volley.toolbox.Volley;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-/**
- * Created by Matthew Catron on 11/17/2017.
- */
 
 public class StoreView extends AppCompatActivity {
     ArrayAdapter<String> mAdapter;
@@ -65,6 +65,7 @@ public class StoreView extends AppCompatActivity {
         //queryItems();
     }
 
+    //Generate an item for each store.
     public void loadTaskList() {
 
         try {
@@ -142,6 +143,7 @@ public class StoreView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
+    //Find the start node of the store.
     private void queryStart() {
 
 
@@ -187,6 +189,7 @@ public class StoreView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
+    //Parse store names.
     public void parseStores(String stores) {
             int i = 0;
             int commacount = 0;
@@ -208,6 +211,7 @@ public class StoreView extends AppCompatActivity {
             loadTaskList();
     }
 
+    //Parse name of the items in the list.
     private void parseItemNames(String items) {
         int i = 0;
 
@@ -223,7 +227,7 @@ public class StoreView extends AppCompatActivity {
         queryStores();
     }
 
-
+    //When a store is selected, a shortest path will be calculated for that store.
     public void path(final int position) {
 
 
@@ -250,10 +254,16 @@ public class StoreView extends AppCompatActivity {
 
     }
 
+    //When a path is calculated, the user will be redirected to navigation view.
     public void goToNavView(String path){
         //Switch view to the navigation view
         Intent intent = new Intent(context, NavigationView.class);
         intent.putExtra("Path", path);
         startActivity(intent);
+    }
+
+    //User can click cancel to return to List View
+    public void  back(final View view) {
+        finish();
     }
 }
