@@ -259,6 +259,8 @@ public class StoreView extends AppCompatActivity {
         //Switch view to the navigation view
         Intent intent = new Intent(context, NavigationView.class);
         intent.putExtra("Path", path);
+        intent.putExtra("ListName", listName);
+        intent.putExtra("UserID", UID);
         startActivity(intent);
     }
 

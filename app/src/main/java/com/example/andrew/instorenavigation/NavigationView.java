@@ -8,7 +8,9 @@
  */
 package com.example.andrew.instorenavigation;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -16,24 +18,39 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.lang.Math.abs;
 
 public class NavigationView extends AppCompatActivity implements SensorEventListener {
 
     //declare the sensor manager
     private SensorManager sensorManager;
     private Sensor mAccel,mMag, mla;
-    private int stepCount, stepSense, targetDistance, turnCode, navStep;
+    private int stepCount, stepSense, targetDistance, turnCode, navStep, azimuthCheck;
     private Date lastUpdate;
     private float lastZ, newZ,newX, newY, lastx, lasty,stepDistRatio;
-    private double azumuthStart, azimuth;
+    private float lastAzimuth, rotation;
+    private double azumuthStart, azimuth, degreesOver360Low, degreesOver360High;
     private TextView  instructionView;
     public static float[] mAccelerometer = null;
     public static float[] mGeomagnetic = null;
@@ -41,6 +58,15 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     private Integer instructionString;
     private ArrayList<int[]> directionList = new ArrayList<int[]>();
     private boolean turnComplete;
+    private  AlertDialog lowAccuracyAlert;
+    private String userID, listName;
+
+    //Arraylist to hold all items inside of the list.
+    private ArrayList<String> items;
+
+    //Adapter is used to display every item contained within a list.
+    ArrayAdapter<String> mAdapter;
+    android.widget.ListView lstTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +79,12 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         String pathString = "";
         if(parentIntent.hasExtra("Path")){
             pathString = parentIntent.getStringExtra("Path");
+        }
+        if(parentIntent.hasExtra("UserID")){
+            userID = parentIntent.getStringExtra("UserID");
+        }
+        if(parentIntent.hasExtra("ListName")){
+            listName = parentIntent.getStringExtra("ListName");
         }
 
         azimuth = 0;
@@ -114,9 +146,26 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         lastZ = 0; //TODO do this better
         lastx= 0;
         lasty = 0;
-        stepSense = 2;
+        stepSense = 1;
         //get the time, this is used to prevent counting a single step multiple times
         lastUpdate = Calendar.getInstance().getTime();
+
+        //get the low accuracy message ready in case it is needed
+        AlertDialog.Builder builder = new AlertDialog.Builder(NavigationView.this);
+        builder.setTitle("Sensor Calibration Required");
+        builder.setMessage("Please move your phone around in an infinity pattern for 10 seconds.");
+
+        lowAccuracyAlert = builder.create();
+
+        //Do not move this, the view has to have been made first before it can be referenced.
+        //get the reference to the navigation screen's list view
+        lstTask = findViewById(R.id.listsNav);
+
+        //Instantiate items array.
+        items = new ArrayList<>();
+
+        //query for the list items and populate list view
+        queryItems();
 
         demoSetup();
 
@@ -138,54 +187,6 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        /*
-        if(event.sensor == mAccel) {
-
-            //assign the new event values to the accelerometer array for use with finding direction
-            mAccelerometer = event.values;
-
-            //get the latest value from the sensor
-
-            newX = event.values[0];
-            newY = event.values[1];
-            newZ = event.values[2];
-            //check if the new value is much different than the last one
-            if (newZ + newX + newY > lastZ + lastx + lasty + stepSense) {
-
-                //make sure it has been at least 10 milliseconds since the last step count
-                //if not don't count it, people don't walk that fast
-                if (Calendar.getInstance().getTimeInMillis() > lastUpdate.getTime() + 500) {
-                    //A step was detected
-                    stepDetected.setVisibility(View.VISIBLE);
-                    stepCount++;
-                    stepCountView.setText(Float.toString(stepCount));
-                    lastUpdate = Calendar.getInstance().getTime();
-                }
-            } else {
-                stepDetected.setVisibility(View.INVISIBLE);
-            }
-
-            //report other readings
-            if (newX > lastx + 0.1 || newX < lastx - 0.1)
-                x.setText(Float.toString(event.values[0]));
-            if (newY > lasty + 0.1 || newY < lasty - 0.1)
-                y.setText(Float.toString(event.values[1]));
-            if (newZ > lastZ + 0.1 || newZ < lastZ - 0.1)
-                z.setText(Float.toString(event.values[2]));
-
-            //get the average z
-            count++;
-            zSum += newZ;
-            avgZ = zSum / count;
-            avgZText.setText(Float.toString(avgZ));
-
-            //assign value to lastxyz before moving on
-            lastZ = newZ;
-            lastx = newX;
-            lasty = newY;
-        }
-
-        */
 
         if (event.sensor == mMag) {
 
@@ -218,10 +219,23 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
                 //make sure it has been at least 10 milliseconds since the last step count
                 //if not don't count it, people don't walk that fast
-                if (Calendar.getInstance().getTimeInMillis() > lastUpdate.getTime() + 500) {
+                if (Calendar.getInstance().getTimeInMillis() > lastUpdate.getTime() + 500 && turnComplete) {
                     //A step was detected
                     stepCount++;
                     lastUpdate = Calendar.getInstance().getTime();
+
+                    //This is to prevent the azimuth start from hanging at 0 upon stating navigation
+                    if(azumuthStart == 0.0){
+                        azumuthStart = azimuth;
+
+                        if(azumuthStart + 75 >= 360){
+                            double degreesUnder360 =  360 - azumuthStart;
+                            degreesOver360Low = 75 - degreesUnder360;
+                            degreesOver360High = 105 - degreesUnder360;
+                        }
+
+                    }
+
                     updateArrow();
                 }
             } else {
@@ -250,13 +264,25 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation);
                 // at this point, orientation contains the azimuth(direction), pitch and roll values.
-                azimuth = (double)(180 * orientation[0] / Math.PI);
+                azimuth = (180 * orientation[0] / Math.PI) + 180;
 
             }
 
-            if (Calendar.getInstance().getTimeInMillis() > lastUpdate.getTime() + 500) {
+            if (Calendar.getInstance().getTimeInMillis() > lastUpdate.getTime() + 500 && !turnComplete) {
                 //A step was detected
                 //lastUpdate = Calendar.getInstance().getTime();
+
+                if(azumuthStart == 0.0){
+                    azumuthStart = azimuth;
+
+                    if(azumuthStart + 75 >= 360){
+                        double degreesUnder360 =  360 - azumuthStart;
+                        degreesOver360Low = 75 - degreesUnder360;
+                        degreesOver360High = 105 - degreesUnder360;
+                    }
+
+                }
+
                 updateArrow();
             }
 
@@ -268,7 +294,19 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+            if(sensor == mMag){
+                if(accuracy < 3) {
+                        lowAccuracyAlert.show();
+                }
+                if(accuracy > 2 && lowAccuracyAlert.isShowing()){
+                    try {
+                        lowAccuracyAlert.hide();
+                    }
+                    catch (Exception e){
+                        System.out.println("Failed to hide dialog");
+                    }
+                }
+            }
     }
 
 
@@ -283,16 +321,22 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     private void updateArrow(){
 
+
+        int turnAngle = 75;
+        System.out.println("Steps: " + stepCount + "      azimuth: "  + azimuth + "          azimuthStart: " + azumuthStart + "      Z Acceleration: " + newZ + "Azimuth Check: " + azimuthCheck);
+
         //Forward
         if(turnCode == 0) {
             arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
             arrow.setRotation(0);
+            turnComplete = true;
 
             if (stepCount >= (float) (targetDistance / stepDistRatio)) {
 
                 //Update instructions
                 navStep++;
                 stepCount = 0;
+                turnComplete = false;
                 CheckNavigation();
 
             }
@@ -307,12 +351,26 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
                 arrow.setRotation(90);
                 instructionView.setText("Turn Right Now");
+                //if(((azimuth > azumuthStart + turnAngle && azumuthStart < turnAngle) || (azimuth > azumuthStart - 285 && azimuth < 0 && azumuthStart > turnAngle)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)){
 
-                if((azimuth < azumuthStart - 90 && azumuthStart > 90) || (azimuth < azumuthStart + 270 && azimuth > 0 && azumuthStart < 90))  {
-                    arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
-                    arrow.setRotation(0);
-                    instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
-                    turnComplete = true;
+
+                if(((azimuth - azumuthStart >= 75 && azimuth - azumuthStart <= 105) || (azumuthStart + 75 >= 360 && azimuth > degreesOver360Low && azimuth < degreesOver360High)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)){
+
+
+                    if(azimuthCheck > 4) {
+                        arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
+                        arrow.setRotation(0);
+                        instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
+                        turnComplete = true;
+                        azimuthCheck = 0;
+                    }
+                    else{
+                        azimuthCheck++;
+                    }
+                }
+                else{
+                    //whoops, the conditions for a turn were not met five times in a row, set the azimuth check to 0 and try again. The azimuth must have teh 90 degree difference sustained for at least 5 cycles for the reported reading to be considered correct
+                    azimuthCheck = 0;
                 }
             }
             //now check if they completed the distance portion
@@ -337,12 +395,21 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 arrow.setRotation(270);
                 instructionView.setText("Turn Left Now");
 
-                if((azimuth > azumuthStart + 90 && azumuthStart < 90) || (azimuth > azumuthStart -270 && azimuth < 0 && azumuthStart > 90))  {
-
-                    arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
-                    arrow.setRotation(0);
-                    instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
-                    turnComplete = true;
+                if(((azimuth - azumuthStart <= -75 && azimuth - azumuthStart >= -105) || (azumuthStart + 75 >= 360 && azimuth > degreesOver360Low && azimuth < degreesOver360High)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)){
+                    if(azimuthCheck > 8) {
+                        arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
+                        arrow.setRotation(0);
+                        instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
+                        turnComplete = true;
+                        azimuthCheck = 0;
+                    }
+                    else{
+                        azimuthCheck++;
+                    }
+                }
+                else{
+                    //whoops, the conditions for a turn were not met five times in a row, set the azimuth check to 0 and try again. The azimuth must have teh 90 degree difference sustained for at least 5 cycles for the reported reading to be considered correct
+                    azimuthCheck = 0;
                 }
             }
             //now check if they completed the distance portion
@@ -373,7 +440,20 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             updateNav(directionArray[0], directionArray[1]);
         }
         else{
-            finish();
+            //Make and show a complete message
+            arrow.setVisibility(View.INVISIBLE);
+            instructionView.setVisibility(View.INVISIBLE);
+            AlertDialog.Builder builder = new AlertDialog.Builder(NavigationView.this);
+            builder.setMessage("List Complete")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            finish();
+                        }
+                    });
+            final AlertDialog completeListAlert = builder.create();
+            completeListAlert.show();
+
         }
 
     }
@@ -384,16 +464,22 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         turnCode = tcode;
         azumuthStart = azimuth;
 
+        if(azumuthStart + 75 >= 360){
+            double degreesUnder360 =  360 - azumuthStart;
+            degreesOver360Low = 75 - degreesUnder360;
+            degreesOver360High = 105 - degreesUnder360;
+        }
+
         //create the instruction string
         if(turnCode == 0){
             instructionView.setText("Walk Forward " + distance / 12 + " feet");
         }
         else if( turnCode == 3){
-            instructionView.setText("Turn Left in "+ distance / 12 + " feet");
+            //instructionView.setText("Turn Left in "+ distance / 12 + " feet");
 
         }
         else if( turnCode == 1){
-            instructionView.setText("Turn Right in "+ distance / 12 + " feet");
+            //instructionView.setText("Turn Right in "+ distance / 12 + " feet");
 
         }
 
@@ -425,5 +511,77 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     }
 
+    //
+    //THIS IS THE CODE FOR THE LIST VIEW ON THE NAVIGATION VIEW SCREEN
+    //
+// ---------- Query Items ----------
+    private void queryItems() {
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(this);
+        final String responseValue = null;
+
+
+        String url = "http://34.238.160.248/GetListContent.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() >= 1){
+                            parseItemNames(response);
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("List_Name", listName);
+                params.put("Users_UserID", userID);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+    // ---------- Parse Item Names ----------
+    private void parseItemNames(String items) {
+        int i = 0;
+
+        for (int j = 0; j < items.length(); j++) {
+            String check = items.substring(j,j+1);
+            if (check.equals("`")) {
+                String temp = items.substring(i,j);
+                this.items.add(temp);
+                i = j+1;
+            }
+        }
+
+        loadTaskList();
+    }
+
+    // ---------- Load Task List ----------
+    private void loadTaskList() {
+        if(mAdapter==null){
+            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view_nav,R.id.item_title,items);
+            lstTask.setAdapter(mAdapter);//Populates the contents of the EditListView
+        }
+        else{
+            mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view_nav,R.id.item_title,items);
+            lstTask.setAdapter(mAdapter);//Populates the contents of the EditListView
+            mAdapter.notifyDataSetChanged();
+        }
+    }
 }
 
