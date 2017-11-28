@@ -8,15 +8,13 @@
  ************************************************************************************************/
 package com.example.andrew.instorenavigation;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -31,8 +29,9 @@ import java.util.Map;
 
 public class CreateAccountView extends AppCompatActivity {
 
-    //Tecxt views from the create account screen.
+    //Text views from the create account screen.
     EditText email, password1, password2, strideLength;
+    SeekBar stepSensitivityBar;
 
 
     @Override
@@ -46,6 +45,10 @@ public class CreateAccountView extends AppCompatActivity {
          password1 = (EditText)findViewById(R.id.editTextPassword1);
          password2 = (EditText)findViewById(R.id.editTextPassword2);
          strideLength = (EditText)findViewById(R.id.editTextStride);
+
+         //get the sensitivity bar
+        stepSensitivityBar = (SeekBar)findViewById(R.id.sensitivitySeekBar);
+
     }
 
     //Function called when the user clicks the "REGISTER" button.
@@ -124,6 +127,7 @@ public class CreateAccountView extends AppCompatActivity {
                 params.put("email", email.getText().toString());
                 params.put("password", password1.getText().toString());
                 params.put("strideLength", strideLength.getText().toString());
+                params.put("stepSensitivty", Integer.toString(stepSensitivityBar.getProgress()));
 
                 return params;
             }
