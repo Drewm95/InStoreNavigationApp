@@ -66,6 +66,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     private String userID, listName, storeID;
     private int nextNodeID;
     private boolean waitForConfirmation;
+    private String[] productsAtNode;
 
     //Arraylist to hold all items inside of the list.
     private ArrayList<String> items;
@@ -353,16 +354,42 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
             if (stepCount >= (float) (targetDistance / stepDistRatio)) {
 
-                if(!waitForConfirmation) {
+                if(items != null) {
+                    if (items.size() > 1) {
+                        //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
+                        queryProductAtNode(storeID, Integer.toString(nextNodeID));
+                        //check the current product against the new list of products
+                        if(productsAtNode != null) {
+                            for (String product : productsAtNode) {
+                                if (!items.contains(product)) {
+                                    //Update instructions
+                                    navStep++;
+                                    stepCount = 0;
+                                    turnComplete = false;
+                                    CheckNavigation();
+                                }
+                                else {
+                                    arrow.setImageDrawable(getDrawable(R.drawable.acceptarrow));
+                                    arrow.setRotation(0);
+                                }
+                            }
+                        }
+                        else{
+                            //Update instructions
+                            navStep++;
+                            stepCount = 0;
+                            turnComplete = false;
+                            CheckNavigation();
+                        }
+                    }
+
+                }
+                else{
                     //Update instructions
                     navStep++;
                     stepCount = 0;
                     turnComplete = false;
                     CheckNavigation();
-                }
-                else{
-                    arrow.setImageDrawable(getDrawable(R.drawable.acceptarrow));
-                    arrow.setRotation(0);
                 }
 
             }
@@ -479,12 +506,18 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
         }
         else{
-            //Make and show a complete message
-            arrow.setVisibility(View.INVISIBLE);
-            instructionView.setVisibility(View.INVISIBLE);
-            toastMessage("Navigation Complete");
-            finish();
 
+            if(items.size() < 1) {
+                //Make and show a complete message
+                arrow.setVisibility(View.INVISIBLE);
+                instructionView.setVisibility(View.INVISIBLE);
+                toastMessage("Navigation Complete");
+                finish();
+            }
+            else{
+                arrow.setVisibility(View.INVISIBLE);
+                instructionView.setText("Please check off remaining items");
+            }
         }
 
     }
@@ -614,6 +647,13 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         if(mAdapter==null){
             mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view_nav,R.id.item_title,items);
             lstTask.setAdapter(mAdapter);//Populates the contents of the EditListView
+
+            //Add first item to bottom text
+            currentItemView.setText(lstTask.getItemAtPosition(0).toString());
+            items.remove(0);
+            lstTask.invalidateViews();
+
+
         }
         else{
             mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view_nav,R.id.item_title,items);
@@ -727,16 +767,11 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
                         if(response.equalsIgnoreCase("bad")){
                             waitForConfirmation = false;
-                            //there is no items here
+                            //there are no items here
                         }
                         else if(response.length() >= 1){
-                            waitForConfirmation = false;
-                            String[] details=response.split("`");
-                            for (String product:details) {
-                                if(product.equals(currentItemView.getText().toString())){
-                                    waitForConfirmation = true;
-                                }
-                            }
+                            //store all of the products at this node
+                            productsAtNode = response.split("`");
                         }
                         else{
                             waitForConfirmation = false;
@@ -768,14 +803,31 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     //handle the user checking off an item
     public void CheckOffItem(View view){
-        //move the top item in the list view up to the current item text view
-        //items.remove(0);
-        //lstTask.remo(0);
-        currentItemView.setText(lstTask.getItemAtPosition(0).toString());
-        //set the wait for confirmation to zero
-        waitForConfirmation = false;
-        //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
-        queryProductAtNode(storeID, Integer.toString(nextNodeID));
+        if(items != null) {
+            if (items.size() > 1) {
+                //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
+                queryProductAtNode(storeID, Integer.toString(nextNodeID));
+                //check the current product against the new list of products
+                if(productsAtNode != null) {
+                    for (String product : productsAtNode) {
+                        if (product.equalsIgnoreCase(currentItemView.getText().toString())) {
+                            //move the top item in the list view up to the current item text view
+                            items.remove(0);
+                            lstTask.invalidateViews();
+                            currentItemView.setText(lstTask.getItemAtPosition(0).toString());
+                            //set the wait for confirmation to zero
+                            waitForConfirmation = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else{
+            //they have completed the list, return the user to the list screen
+            toastMessage("List Complete");
+            finish();
+        }
     }
 
 
