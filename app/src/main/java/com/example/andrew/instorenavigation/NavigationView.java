@@ -10,7 +10,6 @@ package com.example.andrew.instorenavigation;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -454,16 +453,8 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             //Make and show a complete message
             arrow.setVisibility(View.INVISIBLE);
             instructionView.setVisibility(View.INVISIBLE);
-            AlertDialog.Builder builder = new AlertDialog.Builder(NavigationView.this);
-            builder.setMessage("List Complete")
-                    .setCancelable(false)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            finish();
-                        }
-                    });
-            final AlertDialog completeListAlert = builder.create();
-            completeListAlert.show();
+            toastMessage("Navigation Complete");
+            finish();
 
         }
 
@@ -514,6 +505,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     commaCount++;
                     tempDistance = Integer.parseInt(temp.substring(i,j));
                 } else {
+                    commaCount=0;
                     tempStopNode = Integer.parseInt(temp.substring(i,j));
                     int tempArray[] = new int[]{tempDistance, tempDirection, tempStopNode};
                     directionList.add(tempArray);
