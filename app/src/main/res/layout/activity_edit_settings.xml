@@ -8,7 +8,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:paddingTop="16dp"
-    tools:context="com.example.andrew.instorenavigation.CreateAccountView">
+    tools:context="com.example.andrew.instorenavigation.SettingsView">
 
     <Button
         android:id="@+id/registerButton"
@@ -19,7 +19,7 @@
         android:layout_centerHorizontal="true"
         android:autoSizeTextType="uniform"
         android:background="@android:color/holo_green_light"
-        android:onClick="register"
+        android:onClick="querySetWalkData"
         android:text="Confirm"
         android:textSize="40sp"
         android:textStyle="bold"
