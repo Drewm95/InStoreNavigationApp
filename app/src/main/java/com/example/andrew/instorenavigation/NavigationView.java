@@ -620,7 +620,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     private void showMap(String url) {
         Intent intent = new Intent(this, MapView.class);
-        intent.putExtra("URL", url);
+        intent.putExtra("MapLink", url);
         startActivity(intent);
     }
 

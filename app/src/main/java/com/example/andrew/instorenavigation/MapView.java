@@ -5,7 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -36,25 +38,8 @@ public class MapView extends AppCompatActivity {
         url = parent.getStringExtra("MapLink");
 
         map = findViewById(R.id.map);
-        map.setImageBitmap(getBitmapFromURL(url));
-    }
-
-    public static Bitmap getBitmapFromURL(String src) {
-        try {
-            Log.e("src",src);
-            URL url = new URL(src);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            Log.e("Bitmap","returned");
-            return myBitmap;
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e("Exception",e.getMessage());
-            return null;
-        }
+        new LoadMap(url, map).execute();
+//        map.setImageBitmap(getBitmapFromURL(url));
     }
 
     @Override
