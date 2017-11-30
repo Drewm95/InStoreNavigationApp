@@ -145,4 +145,6 @@ public class LoginView extends Activity implements View.OnClickListener{
         Intent intent = new Intent(this, CreateAccountView.class);
         startActivity(intent);
     }
+
+
 }

@@ -21,6 +21,7 @@
         <activity android:name=".ListView" />
         <activity android:name=".EditListView" />
         <activity android:name=".StoreView" />
+        <activity android:name=".SettingsView" />
         <activity android:name=".CreateAccountView"></activity>
     </application>
 

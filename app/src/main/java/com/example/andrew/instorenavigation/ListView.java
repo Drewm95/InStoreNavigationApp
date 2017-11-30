@@ -20,7 +20,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,11 +29,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-//import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+//import android.widget.ListView;
 
 
 public class ListView extends AppCompatActivity {
@@ -95,30 +95,24 @@ public class ListView extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.action_add_task:
-                final EditText taskEditText = new EditText(this);
-                AlertDialog dialog = new AlertDialog.Builder(this) //Create prompt to ask if user wants to create a new itemlist
-                        .setTitle("Create New List")
-                        .setMessage("") //Prompt message for user
-                        .setView(taskEditText) // Allows the view to be edited
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String task = String.valueOf(taskEditText.getText());
-                                addList(task, userID, context);
-                                loadTaskList();
-                            }
-                        })
-                        .setNegativeButton("Cancel",null)
-                        .create();
-                dialog.show();
-                return true;
+    @Override // handle the user clicking the settings button
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+
+        switch (item.getItemId()) //get the id which is an int
+        {
+            case R.id.settings_action:
+                Intent i = new Intent(this, SettingsView.class);
+                i.putExtra("UserID", userID);
+                startActivity(i);
+                break;
+
+            default:
+
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
+
 
     //Prompt used by delete button to ensure that the user wishes to remove the list.
     public void deleteTask(final View view){ //Method used to delete the generate_list_view selected
@@ -408,4 +402,6 @@ public class ListView extends AppCompatActivity {
         i.putExtra("ListName", listName);
         startActivity(i);
     }
+
+
 }

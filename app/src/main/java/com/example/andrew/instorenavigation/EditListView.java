@@ -11,15 +11,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -94,32 +93,22 @@ public class EditListView extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    // ---------- Prompts the user on Inserting an item into the list ----------
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.action_add_task:
-                final EditText taskEditText = new EditText(this);
-                AlertDialog dialog = new AlertDialog.Builder(this) //Create prompt to ask if user wants to create a new itemlist
-                        .setTitle("Add New Item?")
-                        .setMessage("") //Prompt message for user
-                        .setView(taskEditText) // Allows the view to be edited
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String item = String.valueOf(taskEditText.getText()); //Gets the string the user has entered
-                                //Test to see if the item is in the database
+    @Override // handle the user clicking the settings button
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
 
-                                testItem(item);
+        switch (item.getItemId()) //get the id which is an int
+        {
+            case R.id.settings_action:
+                Intent i = new Intent(this, SettingsView.class);
+                i.putExtra("UserID", userID);
+                startActivity(i);
+                break;
 
-                            }
-                        })
-                        .setNegativeButton("Cancel",null)
-                        .create();
-                dialog.show();
-                return true;
+            default:
+
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     // ---------- Method used to delete the items from the list ----------
@@ -366,6 +355,7 @@ public class EditListView extends AppCompatActivity {
     public void back(final View v) {
         finish();
     }
+
 
 }
 

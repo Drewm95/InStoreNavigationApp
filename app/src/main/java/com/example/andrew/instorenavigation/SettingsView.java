@@ -85,6 +85,6 @@ public class SettingsView extends AppCompatActivity{
                         // error
                         Log.d("Error.Response", error.toString());
                     }
-                }
+                });
     }
 }
