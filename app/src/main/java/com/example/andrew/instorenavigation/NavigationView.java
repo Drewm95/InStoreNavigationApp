@@ -67,6 +67,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     private int nextNodeID;
     private boolean waitForConfirmation;
     private String[] productsAtNode;
+    private String startNode;
 
     //Arraylist to hold all items inside of the list.
     private ArrayList<String> items;
@@ -95,6 +96,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         }
         if(parentIntent.hasExtra("StoreID")){
             storeID = parentIntent.getStringExtra("StoreID");
+        }
+        if(parentIntent.hasExtra("StartNode")){
+            startNode = parentIntent.getStringExtra("StartNode");
         }
 
         azimuth = 0;
@@ -183,6 +187,8 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
         //by default set wait to false
         waitForConfirmation = false;
+
+
 
         demoSetup();
 
@@ -334,155 +340,156 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         return bd.doubleValue();
     }
 
-    private void updateArrow(){
+    private void updateArrow() {
 
-
-        int turnAngle = 75;
-        System.out.println("Steps: " + stepCount + "      azimuth: "  + azimuth + "          azimuthStart: " + azumuthStart + "      Z Acceleration: " + newZ + "Azimuth Check: " + azimuthCheck);
-
-        //Forward
-        if(turnCode == 0) {
-            arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
+        if (waitForConfirmation) {
+            arrow.setImageDrawable(getDrawable(R.drawable.stop256));
+            instructionView.setText("Confirm Item PickUp");
             arrow.setRotation(0);
-            turnComplete = true;
+        }
+        else {
 
-            if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+            int turnAngle = 75;
+            System.out.println("Steps: " + stepCount + "      azimuth: " + azimuth + "          azimuthStart: " + azumuthStart + "      Z Acceleration: " + newZ + "Azimuth Check: " + azimuthCheck);
 
-                if(items != null) {
-                    if (items.size() > 1) {
-                        //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
-                        queryProductAtNode(storeID, Integer.toString(nextNodeID));
-                        //check the current product against the new list of products
-                        if(productsAtNode != null) {
-                            for (String product : productsAtNode) {
-                                if (!items.contains(product)) {
-                                    //Update instructions
-                                    navStep++;
-                                    stepCount = 0;
-                                    turnComplete = false;
-                                    CheckNavigation();
-                                }
-                                else {
-                                    arrow.setImageDrawable(getDrawable(R.drawable.acceptarrow));
-                                    arrow.setRotation(0);
-                                }
+            //Forward
+            if (turnCode == 0) {
+                arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
+                arrow.setRotation(0);
+                turnComplete = true;
+
+                if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+
+                    //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
+                    //queryProductAtNode(storeID, Integer.toString(nextNodeID));
+                    //Update instructions
+                    navStep++;
+                    stepCount = 0;
+                    turnComplete = false;
+                    CheckNavigation();
+
+                }
+            }
+
+            //Right
+
+            if (turnCode == 1) {
+
+                //check if they completed the turn
+                if (!turnComplete) {
+                    arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
+                    arrow.setRotation(90);
+                    instructionView.setText("Turn Right Now");
+                    //if(((azimuth > azumuthStart + turnAngle && azumuthStart < turnAngle) || (azimuth > azumuthStart - 285 && azimuth < 0 && azumuthStart > turnAngle)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)){
+
+
+                    if (((azimuth - azumuthStart >= 75 && azimuth - azumuthStart <= 105) || (azumuthStart + 75 >= 360 && azimuth > degreesOver360Low && azimuth < degreesOver360High)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)) {
+
+
+                        if (azimuthCheck > 4) {
+                            arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
+                            arrow.setRotation(0);
+                            instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
+                            turnComplete = true;
+                            azimuthCheck = 0;
+                        } else {
+                            azimuthCheck++;
+                        }
+                    } else {
+                        //whoops, the conditions for a turn were not met five times in a row, set the azimuth check to 0 and try again. The azimuth must have teh 90 degree difference sustained for at least 5 cycles for the reported reading to be considered correct
+                        azimuthCheck = 0;
+                    }
+                }
+                //now check if they completed the distance portion
+                else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+
+                    //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
+                    //queryProductAtNode(storeID, Integer.toString(nextNodeID));
+                    //Update instructions
+                    navStep++;
+                    stepCount = 0;
+                    turnComplete = false;
+                    CheckNavigation();
+
+                }
+            }
+
+            //Right
+
+            if (turnCode == 3) {
+
+                //check if they completed the turn
+                if (!turnComplete) {
+                    arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
+                    arrow.setRotation(270);
+                    instructionView.setText("Turn Left Now");
+
+                    if (((azimuth - azumuthStart <= -75 && azimuth - azumuthStart >= -105) || (azumuthStart + 75 >= 360 && azimuth > degreesOver360Low && azimuth < degreesOver360High)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)) {
+                        if (azimuthCheck > 8) {
+                            arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
+                            arrow.setRotation(0);
+                            instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
+                            turnComplete = true;
+                            azimuthCheck = 0;
+                        } else {
+                            azimuthCheck++;
+                        }
+                    } else {
+                        //whoops, the conditions for a turn were not met five times in a row, set the azimuth check to 0 and try again. The azimuth must have teh 90 degree difference sustained for at least 5 cycles for the reported reading to be considered correct
+                        azimuthCheck = 0;
+                    }
+                }
+                //now check if they completed the distance portion
+                else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+
+                    //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
+                    //queryProductAtNode(storeID, Integer.toString(nextNodeID));
+                    //Update instructions
+                    navStep++;
+                    stepCount = 0;
+                    turnComplete = false;
+                    CheckNavigation();
+
+                }
+            }
+
+        }
+    }
+
+
+
+    private void checkIfYouCanGoToNextSegment(){
+
+        int gotonext = 1;
+
+            if(items != null) {
+                if (items.size() > 1) {
+                 //check the current product against the new list of products
+                 if (productsAtNode != null) {
+                     for (String product : productsAtNode) {
+                        for(String itemName: items) {
+                            if (itemName.equals(product) && gotonext != 0) {
+                                gotonext = 0;
                             }
-                        }
-                        else{
-                            //Update instructions
-                            navStep++;
-                            stepCount = 0;
-                            turnComplete = false;
-                            CheckNavigation();
-                        }
                     }
-
                 }
-                else{
-                    //Update instructions
-                    navStep++;
-                    stepCount = 0;
-                    turnComplete = false;
-                    CheckNavigation();
-                }
+            }
 
             }
         }
+        if(gotonext == 1){
+        //Update instructions
+        navStep++;
+        stepCount = 0;
+        turnComplete = false;
+        CheckNavigation();
+    } else {
+        arrow.setImageDrawable(getDrawable(R.drawable.stop256));
+        instructionView.setText("Confirm Item PickUp");
+        arrow.setRotation(0);
+        waitForConfirmation = true;
 
-        //Right
-
-        if(turnCode == 1) {
-
-            //check if they completed the turn
-            if(!turnComplete) {
-                arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-                arrow.setRotation(90);
-                instructionView.setText("Turn Right Now");
-                //if(((azimuth > azumuthStart + turnAngle && azumuthStart < turnAngle) || (azimuth > azumuthStart - 285 && azimuth < 0 && azumuthStart > turnAngle)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)){
-
-
-                if(((azimuth - azumuthStart >= 75 && azimuth - azumuthStart <= 105) || (azumuthStart + 75 >= 360 && azimuth > degreesOver360Low && azimuth < degreesOver360High)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)){
-
-
-                    if(azimuthCheck > 4) {
-                        arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
-                        arrow.setRotation(0);
-                        instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
-                        turnComplete = true;
-                        azimuthCheck = 0;
-                    }
-                    else{
-                        azimuthCheck++;
-                    }
-                }
-                else{
-                    //whoops, the conditions for a turn were not met five times in a row, set the azimuth check to 0 and try again. The azimuth must have teh 90 degree difference sustained for at least 5 cycles for the reported reading to be considered correct
-                    azimuthCheck = 0;
-                }
-            }
-            //now check if they completed the distance portion
-            else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
-
-                if(!waitForConfirmation) {
-                    //Update instructions
-                    navStep++;
-                    stepCount = 0;
-                    turnComplete = false;
-                    CheckNavigation();
-                }
-                else{
-                    arrow.setImageDrawable(getDrawable(R.drawable.acceptarrow));
-                    arrow.setRotation(0);
-                }
-
-            }
-        }
-
-        //Right
-
-        if(turnCode == 3) {
-
-            //check if they completed the turn
-            if(!turnComplete) {
-                arrow.setImageDrawable(getDrawable(R.drawable.arrowforwardfill));
-                arrow.setRotation(270);
-                instructionView.setText("Turn Left Now");
-
-                if(((azimuth - azumuthStart <= -75 && azimuth - azumuthStart >= -105) || (azumuthStart + 75 >= 360 && azimuth > degreesOver360Low && azimuth < degreesOver360High)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)){
-                    if(azimuthCheck > 8) {
-                        arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
-                        arrow.setRotation(0);
-                        instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
-                        turnComplete = true;
-                        azimuthCheck = 0;
-                    }
-                    else{
-                        azimuthCheck++;
-                    }
-                }
-                else{
-                    //whoops, the conditions for a turn were not met five times in a row, set the azimuth check to 0 and try again. The azimuth must have teh 90 degree difference sustained for at least 5 cycles for the reported reading to be considered correct
-                    azimuthCheck = 0;
-                }
-            }
-            //now check if they completed the distance portion
-            else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
-
-                if(!waitForConfirmation) {
-                    //Update instructions
-                    navStep++;
-                    stepCount = 0;
-                    turnComplete = false;
-                    CheckNavigation();
-                }
-                else{
-                    arrow.setImageDrawable(getDrawable(R.drawable.acceptarrow));
-                    arrow.setRotation(0);
-                }
-
-            }
-        }
-
+    }
     }
 
     private void demoSetup(){
@@ -509,8 +516,10 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 finish();
             }
             else{
-                arrow.setVisibility(View.INVISIBLE);
+                arrow.setImageDrawable(getDrawable(R.drawable.stop256));
+                arrow.setRotation(0);
                 instructionView.setText("Please check off remaining items");
+
             }
         }
 
@@ -528,23 +537,29 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             degreesOver360Low = 75 - degreesUnder360;
             degreesOver360High = 105 - degreesUnder360;
         }
-
-        //create the instruction string
-        if(turnCode == 0){
-            instructionView.setText("Walk Forward " + distance / 12 + " feet");
-        }
-        else if( turnCode == 3){
-            //instructionView.setText("Turn Left in "+ distance / 12 + " feet");
-
-        }
-        else if( turnCode == 1){
-            //instructionView.setText("Turn Right in "+ distance / 12 + " feet");
-
-        }
         //get the node ID
         nextNodeID = nodeID;
 
         queryProductAtNode(storeID, Integer.toString(nextNodeID));
+
+        if(!waitForConfirmation) {
+
+            //create the instruction string
+            if (turnCode == 0) {
+                instructionView.setText("Walk Forward " + distance / 12 + " feet");
+            } else if (turnCode == 3) {
+                //instructionView.setText("Turn Left in "+ distance / 12 + " feet");
+
+            } else if (turnCode == 1) {
+                //instructionView.setText("Turn Right in "+ distance / 12 + " feet");
+
+            }
+        }
+        else{
+            instructionView.setText("Walk Forward " + distance / 12 + " feet");
+
+        }
+
 
 
     }
@@ -568,6 +583,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     tempStopNode = Integer.parseInt(temp.substring(i,j));
                     int tempArray[] = new int[]{tempDistance, tempDirection, tempStopNode};
                     directionList.add(tempArray);
+                    System.out.println(tempArray[2]);
                 }
                 i = j+1;
             }
@@ -692,8 +708,19 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             items.remove(0);
             lstTask.invalidateViews();
 
+            //check first store node
 
-        }
+                if(items != null) {
+                    if (items.size() > 1) {
+                        //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
+                        queryProductAtNode(storeID, Integer.toString(Integer.parseInt(startNode)));
+
+                    }
+
+                }
+
+            }
+
         else{
             mAdapter = new ArrayAdapter<String>(this,R.layout.generate_edit_list_view_nav,R.id.item_title,items);
             lstTask.setAdapter(mAdapter);//Populates the contents of the EditListView
@@ -722,8 +749,6 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                             stepDistRatio = Float.parseFloat(details[0]); //store the user's stride length
                             stepSense = Float.parseFloat(details[1]); //store the user's step Sensitivity
 
-                            toastMessage("Step Sensitivity: " + stepSense);
-                            System.out.println(stepSense + "     " + stepDistRatio);
 
                         }
 
@@ -806,11 +831,14 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
                         if(response.equalsIgnoreCase("bad")){
                             waitForConfirmation = false;
+
                             //there are no items here
                         }
                         else if(response.length() >= 1){
                             //store all of the products at this node
                             productsAtNode = response.split("`");
+                            checkIfYouCanGoToNextSegment();
+
                         }
                         else{
                             waitForConfirmation = false;
@@ -851,14 +879,30 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     for (String product : productsAtNode) {
                         if (product.equalsIgnoreCase(currentItemView.getText().toString())) {
                             //move the top item in the list view up to the current item text view
+                            currentItemView.setText(lstTask.getItemAtPosition(0).toString());
                             items.remove(0);
                             lstTask.invalidateViews();
-                            currentItemView.setText(lstTask.getItemAtPosition(0).toString());
-                            //set the wait for confirmation to zero
-                            waitForConfirmation = false;
+
+                            //check if the next item is at this node
+                            int found = 0;
+                            for (String product1 : productsAtNode) {
+
+                                if (product1.equalsIgnoreCase(currentItemView.getText().toString())) {
+                                    found = 1;
+                                }
+                            }
+
+                            if(found == 0) {
+                                //set the wait for confirmation to zero
+                                waitForConfirmation = false;
+                                instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
+                                updateArrow();
+                            }
                             break;
                         }
+
                     }
+
                 }
             }
         }

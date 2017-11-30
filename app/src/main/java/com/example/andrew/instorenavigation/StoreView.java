@@ -285,7 +285,7 @@ public class StoreView extends AppCompatActivity {
     }
 
     //When a path is calculated, the user will be redirected to navigation view.
-    public void goToNavView(String path){
+    public void goToNavView(String path, String startNode){
         //Switch view to the navigation view
         Intent intent = new Intent(context, NavigationView.class);
         intent.putExtra("Path", path);
@@ -293,6 +293,7 @@ public class StoreView extends AppCompatActivity {
         intent.putExtra("UserID", UID);
         intent.putExtra("StartHasProducts", startHasProducts);
         intent.putExtra("StoreID", storeID);
+        intent.putExtra("StartNode", startNode);
         startActivity(intent);
     }
 

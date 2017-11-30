@@ -164,7 +164,7 @@ public class Path extends Activity{
 
                         if(response.length() >= 1){
                             if(context instanceof StoreView){
-                                ((StoreView)context).goToNavView(response);
+                                ((StoreView)context).goToNavView(response, start);
                             }
                         }
                     }
