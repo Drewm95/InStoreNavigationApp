@@ -292,6 +292,7 @@ public class StoreView extends AppCompatActivity {
         intent.putExtra("ListName", listName);
         intent.putExtra("UserID", UID);
         intent.putExtra("StartHasProducts", startHasProducts);
+        intent.putExtra("StoreID", storeID);
         startActivity(intent);
     }
 
