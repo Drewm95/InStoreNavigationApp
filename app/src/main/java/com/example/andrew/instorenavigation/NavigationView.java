@@ -55,7 +55,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     private float lastZ, newZ,newX, newY, lastx, lasty,stepDistRatio, stepSense;
     private float lastAzimuth, rotation;
     private double azumuthStart, azimuth, degreesOver360Low, degreesOver360High;
-    private TextView  instructionView;
+    private TextView  instructionView, currentItemView;
     public static float[] mAccelerometer = null;
     public static float[] mGeomagnetic = null;
     private ImageView arrow;
@@ -63,8 +63,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     private ArrayList<int[]> directionList = new ArrayList<int[]>();
     private boolean turnComplete;
     private  AlertDialog lowAccuracyAlert;
-    private String userID, listName;
+    private String userID, listName, storeID;
     private int nextNodeID;
+    private boolean waitForConfirmation;
 
     //Arraylist to hold all items inside of the list.
     private ArrayList<String> items;
@@ -91,6 +92,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         if(parentIntent.hasExtra("ListName")){
             listName = parentIntent.getStringExtra("ListName");
         }
+        if(parentIntent.hasExtra("StoreID")){
+            storeID = parentIntent.getStringExtra("StoreID");
+        }
 
         azimuth = 0;
         turnComplete = false;
@@ -111,6 +115,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         //stepCountView = (TextView)findViewById(R.id.NavStepCount);
         arrow = (ImageView)findViewById(R.id.arrowView);
         instructionView = (TextView)findViewById(R.id.InstructionView);
+        currentItemView = (TextView)findViewById(R.id.currentProductView);
 
 
         //get the default accelerometer from the sm
@@ -175,6 +180,11 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         //Get the user's details
         getUserDetails(userID);
 
+        //hide the current item view
+        //currentItemView.setVisibility(View.INVISIBLE);
+
+        //by default set wait to false
+        waitForConfirmation = false;
 
         demoSetup();
 
@@ -343,11 +353,17 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
             if (stepCount >= (float) (targetDistance / stepDistRatio)) {
 
-                //Update instructions
-                navStep++;
-                stepCount = 0;
-                turnComplete = false;
-                CheckNavigation();
+                if(!waitForConfirmation) {
+                    //Update instructions
+                    navStep++;
+                    stepCount = 0;
+                    turnComplete = false;
+                    CheckNavigation();
+                }
+                else{
+                    arrow.setImageDrawable(getDrawable(R.drawable.acceptarrow));
+                    arrow.setRotation(0);
+                }
 
             }
         }
@@ -386,11 +402,17 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             //now check if they completed the distance portion
             else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
 
-                //Update instructions
-                navStep++;
-                stepCount = 0;
-                turnComplete = false;
-                CheckNavigation();
+                if(!waitForConfirmation) {
+                    //Update instructions
+                    navStep++;
+                    stepCount = 0;
+                    turnComplete = false;
+                    CheckNavigation();
+                }
+                else{
+                    arrow.setImageDrawable(getDrawable(R.drawable.acceptarrow));
+                    arrow.setRotation(0);
+                }
 
             }
         }
@@ -425,11 +447,17 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             //now check if they completed the distance portion
             else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
 
-                //Update instructions
-                navStep++;
-                stepCount = 0;
-                turnComplete = false;
-                CheckNavigation();
+                if(!waitForConfirmation) {
+                    //Update instructions
+                    navStep++;
+                    stepCount = 0;
+                    turnComplete = false;
+                    CheckNavigation();
+                }
+                else{
+                    arrow.setImageDrawable(getDrawable(R.drawable.acceptarrow));
+                    arrow.setRotation(0);
+                }
 
             }
         }
@@ -448,6 +476,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         if(navStep < directionList.size()) {
             directionArray = directionList.get(navStep);
             updateNav(directionArray[0], directionArray[1], directionArray[2]);
+
         }
         else{
             //Make and show a complete message
@@ -487,6 +516,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         }
         //get the node ID
         nextNodeID = nodeID;
+
+        queryProductAtNode(storeID, Integer.toString(nextNodeID));
+
 
     }
 
@@ -676,6 +708,76 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         }
         return true;
     }
+
+    //Get the products at a specific node
+    private void queryProductAtNode(final String storeId, final String nodeID) {
+
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String responseValue = null;
+
+
+        String url = "http://34.238.160.248/getProductsAtNode.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.equalsIgnoreCase("bad")){
+                            waitForConfirmation = false;
+                            //there is no items here
+                        }
+                        else if(response.length() >= 1){
+                            waitForConfirmation = false;
+                            String[] details=response.split("`");
+                            for (String product:details) {
+                                if(product.equals(currentItemView.getText().toString())){
+                                    waitForConfirmation = true;
+                                }
+                            }
+                        }
+                        else{
+                            waitForConfirmation = false;
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+
+
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Node_NID", nodeID);
+                params.put("Store_SID", storeId);
+                System.out.println(nodeID +"  " + storeId);
+                return params;
+            }
+        };
+        queue.add(postRequest);
+
+    }
+
+    //handle the user checking off an item
+    public void CheckOffItem(View view){
+        //move the top item in the list view up to the current item text view
+        //items.remove(0);
+        //lstTask.remo(0);
+        currentItemView.setText(lstTask.getItemAtPosition(0).toString());
+        //set the wait for confirmation to zero
+        waitForConfirmation = false;
+        //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
+        queryProductAtNode(storeID, Integer.toString(nextNodeID));
+    }
+
 
 }
 
