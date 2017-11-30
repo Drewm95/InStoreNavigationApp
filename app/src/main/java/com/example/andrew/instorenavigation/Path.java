@@ -26,6 +26,7 @@ public class Path extends Activity{
     private int[][] nodeEdgeData;
     private ArrayList<Integer> nodesVisited;
     private Node[] nodes;
+    private ArrayList<Integer> edgeCollection;
 
     //Key Values to be passed to queryNodes.
     private String start;
@@ -44,6 +45,7 @@ public class Path extends Activity{
         this.start = start;
         this.context = context;
         this.nodesVisited = new ArrayList<>();
+        this.edgeCollection = new ArrayList<>();
 
         //Add start node.
         nodesVisited.add(Integer.parseInt(start));
@@ -201,14 +203,17 @@ public class Path extends Activity{
 
         nodes = new Node[nodeCount];
 
-        //All other nodes are not connected, parent of -1
-        for (int i = 0; i < nodeCount; i++) {
-            parent[i] = 0;
-        }
-
         for (int i = 0; i < nodeCount; i++) {
             nodes[i] = new Node(i);
             nodes[i].setID(nodeEdgeData[i][i]);
+        }
+
+        //All other nodes are not connected, parent of 0
+        for (int i = 0; i < nodeCount; i++) {
+            parent[i] = 0;
+            for (int j = i+1; j < nodeCount; j++) {
+                nodeEdgeData[i][j] = edgeCollection.get((i*(nodeCount-1))+j-1);
+            }
         }
 
         //Print out the matrix
@@ -267,15 +272,17 @@ public class Path extends Activity{
         String nodesFormatted = "";
 
         Node previousNode = nodes[0];
-        Node currentNode = previousNode.getConnections().get(0);
+        Node currentNode = previousNode; //previousNode.getConnections().get(0);
 
         nodesFormatted += start + "`";
         for (int i = 1; i < nodeCount; i++) {
             if (currentNode.getConnections().size() == 1) {
                 if (currentNode.getConnections().get(0) == previousNode) {
                     nodesFormatted += currentNode.getId() + "`";
+
                 } else {
                     nodesFormatted += currentNode.getConnections().get(0).getId() + "`";
+                    currentNode = currentNode.getConnections().get(0);
                 }
             } else {
                 if (currentNode.getConnections().get(0) == previousNode) {
@@ -318,8 +325,6 @@ public class Path extends Activity{
 
     //Parse edges and store them into the nodeEdgeData
     private void parseEdges (String edges){
-        int [] nodeIDs = new int[nodeCount];
-        ArrayList<Integer> edgeCollection = new ArrayList<>();
 
         int i = 0;
         int commaCount = 0;
