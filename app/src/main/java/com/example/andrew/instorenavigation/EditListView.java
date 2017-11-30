@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +64,14 @@ public class EditListView extends AppCompatActivity {
 
         //Instantiate items array.
         items = new ArrayList<>();
+        queryForItems();
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_dropdown_item_1line,items);
+        AutoCompleteTextView textView = (AutoCompleteTextView)
+                findViewById(R.id.txtItem);
+        textView.setAdapter(adapter);
+
 
         queryItems();
     }
@@ -354,6 +363,47 @@ public class EditListView extends AppCompatActivity {
         //redirect user nack to ListView
     public void back(final View v) {
         finish();
+    }
+
+    //Query for the items to be autofilled
+    public void queryForItems(){
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(context);
+        final String responseValue = null;
+
+
+        String url = "http://34.238.160.248/GetProduct.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() >= 1){
+                            parseItemNames(response);
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+               // params.put("List_Name", listName);
+                //params.put("Users_UserID", userID);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
     }
 
 

@@ -23,6 +23,19 @@
         android:layout_marginTop="57dp"
         app:layout_constraintBottom_toTopOf="@id/DoneText" />
 
+    <ImageButton
+        android:id="@+id/btnAdd"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="13dp"
+        android:background="@android:color/transparent"
+        android:onClick="listNameEnter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/plus" />
+
     <TextView
         android:id="@+id/DoneText"
         android:layout_width="match_parent"
@@ -38,4 +51,12 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         android:onClick="back"/>
+
+    <AutoCompleteTextView
+        android:id="@+id/txtItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:hint="Enter An Item" />
 </RelativeLayout>
