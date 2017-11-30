@@ -30,6 +30,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +48,9 @@ public class ListView extends AppCompatActivity {
     private String userID;
     private Context context;
 
+    //Variable to store the List Name entered
+    TextView listName;
+
     //Container for lists.
     private ArrayList<String> lists;
 
@@ -60,6 +65,8 @@ public class ListView extends AppCompatActivity {
 
         //Grab area where to place lists.
         lstNames = findViewById(R.id.lists);
+
+        listName = (TextView) findViewById(R.id.txtListName);
 
         //Store User_ID passed forward form login.
         Intent loginID = getIntent();
@@ -287,6 +294,14 @@ public class ListView extends AppCompatActivity {
 
 
         queue.add(postRequest);
+    }
+
+    public void listNameEnter(final View view){
+
+        String task = String.valueOf(listName.getText());
+        addList(task, userID, context);
+
+        listName.setText("");
     }
 
     //Query to get all lists associated with a user.
