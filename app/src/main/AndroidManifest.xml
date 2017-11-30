@@ -22,7 +22,8 @@
         <activity android:name=".EditListView" />
         <activity android:name=".StoreView" />
         <activity android:name=".SettingsView" />
-        <activity android:name=".CreateAccountView"></activity>
+        <activity android:name=".CreateAccountView"/>
+        <activity android:name=".MapView"/>
     </application>
 
 </manifest>

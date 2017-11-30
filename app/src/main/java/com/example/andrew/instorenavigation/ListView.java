@@ -184,7 +184,7 @@ public class ListView extends AppCompatActivity {
                         Log.d("Response", response);
 
                         //Check to make sure that the list doesn't exist
-                        if(response.equals("List Already Exists.")){
+                        if(response.equals("List Already Exists.\t")){
                             Context appContext = getApplicationContext();
                             CharSequence text = "List " + key1 + " already exists.";
                             int duration = Toast.LENGTH_SHORT;
@@ -297,20 +297,8 @@ public class ListView extends AppCompatActivity {
     }
 
     public void listNameEnter(final View view){
-
         String task = String.valueOf(listName.getText());
-        if (lists.contains(task)) {
-            Context appContext = getApplicationContext();
-            CharSequence text = task + " Already Exists";
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(appContext, text, duration);
-            toast.show();
-        }
-        else {
-            addList(task, userID, context);
-        }
-
+        addList(task, userID, context);
         listName.setText("");
     }
 

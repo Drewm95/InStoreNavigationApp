@@ -147,10 +147,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
         } else {
 
-
-
         }
-
 
         //set all of the required initial last acceleration values
         lastZ = 0; //TODO do this better
@@ -311,7 +308,6 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     }
 
-
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
             if(sensor == mMag){
@@ -329,7 +325,6 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             }
     }
 
-
     public static double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
 
@@ -337,7 +332,6 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
-
 
     private void updateArrow(){
 
@@ -549,9 +543,54 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     }
 
-    //
-    //THIS IS THE CODE FOR THE LIST VIEW ON THE NAVIGATION VIEW SCREEN
-    //
+
+    public void queryMap(View view){
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(this);
+        final String responseValue = null;
+
+
+        String url = "http://34.238.160.248/getMapLink.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.equals("bad")){
+                            toastMessage("No Map For This Store");
+                        } else {
+                            showMap(response);
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Store_SID", storeID);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+    private void showMap(String url) {
+        Intent intent = new Intent(this, MapView.class);
+        intent.putExtra("URL", url);
+        startActivity(intent);
+    }
+
 // ---------- Query Items ----------
     private void queryItems() {
         //Connect to the database and authenticate
@@ -777,7 +816,6 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
         queryProductAtNode(storeID, Integer.toString(nextNodeID));
     }
-
 
 }
 

@@ -60,11 +60,12 @@ public class EditListView extends AppCompatActivity {
 
         lstTask = findViewById(R.id.edit_list);
         Intent loginID = getIntent();
-        itemName = (TextView) findViewById(R.id.txtItem);
+        itemName = findViewById(R.id.txtItem);
 
         //Pull the passed forward data fro List View.
         userID = loginID.getStringExtra("UserID");
         listName = loginID.getStringExtra("ListName");
+
         //Set title to the list being edited.
         super.setTitle(listName);
 
@@ -78,7 +79,6 @@ public class EditListView extends AppCompatActivity {
         AutoCompleteTextView textView = (AutoCompleteTextView)
                 findViewById(R.id.txtItem);
         textView.setAdapter(adapter);
-
 
         queryItems();
     }
@@ -161,19 +161,14 @@ public class EditListView extends AppCompatActivity {
             Toast toast = Toast.makeText(appContext, text, duration);
             toast.show();
         } else {
-            addItems(listName, userID, task, context);
-            itemName.setText("");
+            testItem(task);
         }
 
 
     }
 
-
-
-
-
     // ---------- Add Items ----------
-  public void addItems(final String key1, final String key2, final String key3, Context context) {
+    public void addItems(final String key1, final String key2, final String key3, Context context) {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(context);
         String responseValue = null;
@@ -357,7 +352,7 @@ public class EditListView extends AppCompatActivity {
                             loadTaskList();
                         } else {
                             Context appContext = getApplicationContext();
-                            CharSequence text = "Item not Found :(";
+                            CharSequence text = "Item not Found";
                             int duration = Toast.LENGTH_SHORT;
 
                             Toast toast = Toast.makeText(appContext, text, duration);
@@ -429,9 +424,5 @@ public class EditListView extends AppCompatActivity {
         };
         queue.add(postRequest);
     }
-
-
-
-
 }
 
