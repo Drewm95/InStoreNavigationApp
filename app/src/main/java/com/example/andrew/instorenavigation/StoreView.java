@@ -36,6 +36,7 @@ public class StoreView extends AppCompatActivity {
     ArrayAdapter<String> mAdapter2;
     android.widget.ListView storeNames;
 
+    private boolean startHasProducts;
     private String storeID;
     String listName;
     String UID;
@@ -149,8 +150,6 @@ public class StoreView extends AppCompatActivity {
 
     //Find the start node of the store.
     private void queryStart() {
-
-
         RequestQueue queue = Volley.newRequestQueue(context);
         String responseValue = null;
 
@@ -163,8 +162,35 @@ public class StoreView extends AppCompatActivity {
                         // response
                         Log.d("Response", response);
 
-                        if(response.length() >= 1){
-                            Path path = new Path(storeID, products, response, context);
+                        if(response.equals("bad")){
+                            Context appContext = getApplicationContext();
+                            CharSequence text = "An Error Occurred, PLease Try Again";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(appContext, text, duration);
+                            toast.show();
+                        } else {
+                            int i = 0;
+                            int commaCount = 0;
+                            for (int j = 0; j < response.length(); j++) {
+                                String check = response.substring(j,j+1);
+                                if (check.equals("`")) {
+                                    commaCount++;
+                                    if (commaCount == 1) {
+                                        storeID = response.substring(i, j);
+                                    } else {
+                                        String temp = response.substring(i, j);
+                                        if (temp.equals("0")) {
+                                            startHasProducts = true;
+                                        } else {
+                                            startHasProducts = false;
+                                        }
+                                    }
+                                    i = j+1;
+                                }
+                            }
+
+                            Path path = new Path(storeID, products, storeID, context);
                             Context appContext = getApplicationContext();
                             CharSequence text = "Calculating Path. Please Wait.";
                             int duration = Toast.LENGTH_SHORT;
@@ -265,6 +291,7 @@ public class StoreView extends AppCompatActivity {
         intent.putExtra("Path", path);
         intent.putExtra("ListName", listName);
         intent.putExtra("UserID", UID);
+        intent.putExtra("StartHasProducts", startHasProducts);
         startActivity(intent);
     }
 
