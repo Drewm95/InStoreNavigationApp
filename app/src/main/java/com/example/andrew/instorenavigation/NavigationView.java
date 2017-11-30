@@ -486,11 +486,10 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
        //we need to know what angle the phone was at the start so we know when they complete the turn
     }
 
-
     private void parseDetailedPath (String path) {
         int i = 0;
         int commaCount = 0;
-        int tempDirection = 0, tempDistance = 0;
+        int tempDirection = 0, tempDistance = 0, tempNode = 0;
         String temp = path.replace("[", ""); temp = temp.replace("]", "");
 
         for (int j = 0; j < temp.length(); j++) {
@@ -498,10 +497,12 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 commaCount++;
                 if (commaCount == 1) {
                     tempDirection = Integer.parseInt(temp.substring(i,j));
-                } else {
-                    commaCount = 0;
+                } else if (commaCount == 2){
+                    commaCount++;
                     tempDistance = Integer.parseInt(temp.substring(i,j));
-                    int tempArray[] = new int[]{tempDistance, tempDirection};
+                } else {
+                    tempNode = Integer.parseInt(temp.substring(i,j));
+                    int tempArray[] = new int[]{tempDistance, tempDirection, tempNode};
                     directionList.add(tempArray);
                 }
                 i = j+1;
