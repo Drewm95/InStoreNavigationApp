@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -46,9 +47,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     //declare the sensor manager
     private SensorManager sensorManager;
     private Sensor mAccel,mMag, mla;
-    private int stepCount, stepSense, targetDistance, turnCode, navStep, azimuthCheck;
+    private int stepCount, targetDistance, turnCode, navStep, azimuthCheck;
     private Date lastUpdate;
-    private float lastZ, newZ,newX, newY, lastx, lasty,stepDistRatio;
+    private float lastZ, newZ,newX, newY, lastx, lasty,stepDistRatio, stepSense;
     private float lastAzimuth, rotation;
     private double azumuthStart, azimuth, degreesOver360Low, degreesOver360High;
     private TextView  instructionView;
@@ -60,6 +61,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     private boolean turnComplete;
     private  AlertDialog lowAccuracyAlert;
     private String userID, listName;
+    private int nextNodeID;
 
     //Arraylist to hold all items inside of the list.
     private ArrayList<String> items;
@@ -167,6 +169,10 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         //query for the list items and populate list view
         queryItems();
 
+        //Get the user's details
+        getUserDetails(userID);
+
+
         demoSetup();
 
     }
@@ -174,6 +180,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     @Override
     protected void onResume(){
         super.onResume();
+        getUserDetails(userID);// in case they go to settings and change their sensitivity
         sensorManager.registerListener(this, mAccel , SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, mMag, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, mla, SensorManager.SENSOR_DELAY_NORMAL);
@@ -437,7 +444,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         int directionArray[] = new int[2];
         if(navStep < directionList.size()) {
             directionArray = directionList.get(navStep);
-            updateNav(directionArray[0], directionArray[1]);
+            updateNav(directionArray[0], directionArray[1], directionArray[2]);
         }
         else{
             //Make and show a complete message
@@ -458,10 +465,11 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     }
 
-    protected void updateNav(int distance, int tcode){
+    protected void updateNav(int distance, int tcode, int nodeID){
         //Update the global variables and the navarrow indicator
         targetDistance = distance;
         turnCode = tcode;
+        //we need to know what angle the phone was at the start so we know when they complete the turn
         azumuthStart = azimuth;
 
         if(azumuthStart + 75 >= 360){
@@ -482,14 +490,15 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             //instructionView.setText("Turn Right in "+ distance / 12 + " feet");
 
         }
+        //get the node ID
+        nextNodeID = nodeID;
 
-       //we need to know what angle the phone was at the start so we know when they complete the turn
     }
 
     private void parseDetailedPath (String path) {
         int i = 0;
         int commaCount = 0;
-        int tempDirection = 0, tempDistance = 0, tempNode = 0;
+        int tempDirection = 0, tempDistance = 0, tempStopNode = 0;
         String temp = path.replace("[", ""); temp = temp.replace("]", "");
 
         for (int j = 0; j < temp.length(); j++) {
@@ -501,8 +510,8 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     commaCount++;
                     tempDistance = Integer.parseInt(temp.substring(i,j));
                 } else {
-                    tempNode = Integer.parseInt(temp.substring(i,j));
-                    int tempArray[] = new int[]{tempDistance, tempDirection, tempNode};
+                    tempStopNode = Integer.parseInt(temp.substring(i,j));
+                    int tempArray[] = new int[]{tempDistance, tempDirection, tempStopNode};
                     directionList.add(tempArray);
                 }
                 i = j+1;
@@ -584,5 +593,62 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             mAdapter.notifyDataSetChanged();
         }
     }
+
+    //--------- Get the Stride Length and Step Sensitivity -----------------
+    private void getUserDetails(final String UserID){
+
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(this);
+        final String responseValue = null;
+
+
+        String url = "http://34.238.160.248/getWalkData.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Response", response);
+
+                        if(response.length() >= 1){
+                            String[] details=response.split("`");
+                            stepDistRatio = Float.parseFloat(details[0]); //store the user's stride length
+                            stepSense = Float.parseFloat(details[1]); //store the user's step Sensitivity
+
+                            toastMessage("Step Sensitivity: " + stepSense);
+                            System.out.println(stepSense + "     " + stepDistRatio);
+
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Users_UserID", UserID);
+
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+    //------ Toast Message --------
+    private void toastMessage(String message){
+        CharSequence text = message;
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(this, text, duration);
+        toast.show();
+    }
+
 }
 

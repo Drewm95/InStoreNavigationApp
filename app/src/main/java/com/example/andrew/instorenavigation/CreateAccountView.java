@@ -127,7 +127,7 @@ public class CreateAccountView extends AppCompatActivity {
                 params.put("email", email.getText().toString());
                 params.put("password", password1.getText().toString());
                 params.put("strideLength", strideLength.getText().toString());
-                params.put("stepSensitivty", Integer.toString(stepSensitivityBar.getProgress()));
+                params.put("stepSensitivity", Integer.toString(stepSensitivityBar.getProgress()));
 
                 return params;
             }
