@@ -299,7 +299,17 @@ public class ListView extends AppCompatActivity {
     public void listNameEnter(final View view){
 
         String task = String.valueOf(listName.getText());
-        addList(task, userID, context);
+        if (lists.contains(task)) {
+            Context appContext = getApplicationContext();
+            CharSequence text = task + " Already Exists";
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(appContext, text, duration);
+            toast.show();
+        }
+        else {
+            addList(task, userID, context);
+        }
 
         listName.setText("");
     }
