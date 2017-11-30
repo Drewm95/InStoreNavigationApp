@@ -30,6 +30,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +48,9 @@ public class EditListView extends AppCompatActivity {
     private Context context;
     //Arraylist to hold all items inside of the list.
     private ArrayList<String> items;
+    private ArrayList<String> itemsForAutoComplete;
+
+    private TextView itemName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,7 @@ public class EditListView extends AppCompatActivity {
 
         lstTask = findViewById(R.id.edit_list);
         Intent loginID = getIntent();
+        itemName = (TextView) findViewById(R.id.txtItem);
 
         //Pull the passed forward data fro List View.
         userID = loginID.getStringExtra("UserID");
@@ -64,10 +70,11 @@ public class EditListView extends AppCompatActivity {
 
         //Instantiate items array.
         items = new ArrayList<>();
+        itemsForAutoComplete = new ArrayList<>();
         queryForItems();
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_dropdown_item_1line,items);
+                android.R.layout.simple_dropdown_item_1line,itemsForAutoComplete);
         AutoCompleteTextView textView = (AutoCompleteTextView)
                 findViewById(R.id.txtItem);
         textView.setAdapter(adapter);
@@ -139,6 +146,24 @@ public class EditListView extends AppCompatActivity {
                 .setNegativeButton("Cancel",null)
                 .create();
         dialog.show();
+
+
+    }
+
+    // ---------- Enter Items ----------
+    public void enterItems(final View view){
+        String task = String.valueOf(itemName.getText());
+        if(items.contains(task)){
+            Context appContext = getApplicationContext();
+            CharSequence text = "Item Already On List.";
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(appContext, text, duration);
+            toast.show();
+        } else {
+            addItems(listName, userID, task, context);
+            itemName.setText("");
+        }
 
 
     }
@@ -265,7 +290,7 @@ public class EditListView extends AppCompatActivity {
                         Log.d("Response", response);
 
                         if(response.length() >= 1){
-                            parseItemNames(response);
+                            parseItemNames(response, items);
                         }
 
                     }
@@ -291,14 +316,14 @@ public class EditListView extends AppCompatActivity {
     }
 
     // ---------- Parse Item Names ----------
-    private void parseItemNames(String items) {
+    private void parseItemNames(String items, ArrayList list) {
         int i = 0;
 
         for (int j = 0; j < items.length(); j++) {
             String check = items.substring(j,j+1);
             if (check.equals("`")) {
                 String temp = items.substring(i,j);
-                this.items.add(temp);
+                list.add(temp);
                 i = j+1;
             }
         }
@@ -360,7 +385,7 @@ public class EditListView extends AppCompatActivity {
     }
 
     //When the done button is clicked, will finish EditList Activity and
-        //redirect user nack to ListView
+        //redirect user back to ListView
     public void back(final View v) {
         finish();
     }
@@ -381,7 +406,7 @@ public class EditListView extends AppCompatActivity {
                         Log.d("Response", response);
 
                         if(response.length() >= 1){
-                            parseItemNames(response);
+                            parseItemNames(response, itemsForAutoComplete);
                         }
 
                     }
@@ -397,14 +422,15 @@ public class EditListView extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-               // params.put("List_Name", listName);
-                //params.put("Users_UserID", userID);
+
 
                 return params;
             }
         };
         queue.add(postRequest);
     }
+
+
 
 
 }

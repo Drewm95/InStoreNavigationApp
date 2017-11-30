@@ -17,9 +17,9 @@
         style="@style/Widget.AppCompat.ListView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="11dp"
         android:layout_marginTop="57dp"
         app:layout_constraintBottom_toTopOf="@id/DoneText" />
 
@@ -29,9 +29,8 @@
         android:layout_height="50dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_marginEnd="13dp"
         android:background="@android:color/transparent"
-        android:onClick="listNameEnter"
+        android:onClick="enterItems"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/plus" />
@@ -58,5 +57,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/btnAdd"
         android:hint="Enter An Item" />
 </RelativeLayout>
