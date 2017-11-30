@@ -20,62 +20,25 @@
         android:autoSizeTextType="uniform"
         android:background="@android:color/holo_green_light"
         android:onClick="register"
-        android:text="Register"
+        android:text="Confirm"
         android:textSize="40sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <EditText
-        android:id="@+id/editTextEmail"
-        android:layout_width="213dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="149dp"
-        android:ems="10"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
-    <EditText
-        android:id="@+id/editTextPassword1"
-        android:layout_width="213dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:ems="10"
-        android:hint="Password"
-        android:inputType="textPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextEmail" />
-
-    <EditText
-        android:id="@+id/editTextPassword2"
-        android:layout_width="213dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:ems="10"
-        android:hint="Confirm Password"
-        android:inputType="textPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextPassword1" />
 
     <EditText
         android:id="@+id/editTextStride"
         android:layout_width="213dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_height="49dp"
+        android:layout_marginTop="150dp"
         android:ems="10"
         android:hint="Stride Length (Inches)"
         android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextPassword2" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <SeekBar
         android:id="@+id/sensitivitySeekBar"

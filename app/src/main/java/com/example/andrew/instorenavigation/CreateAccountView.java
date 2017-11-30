@@ -54,8 +54,18 @@ public class CreateAccountView extends AppCompatActivity {
     //Function called when the user clicks the "REGISTER" button.
     public void register (View view){
         //check that the passwords match and that the email is correct
-        if(password1.getText().toString().equals(password2.getText().toString())){
-            queryAccount();
+        if(password1.getText().toString().equals(password2.getText().toString())) {
+            if (email.getText().toString().length() == 0 || password1.getText().toString().length() == 0 ||
+                    strideLength.getText().toString().length() == 0) {
+                Context appContext = getApplicationContext();
+                CharSequence text = "Fields Cannot Be Empty";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(appContext, text, duration);
+                toast.show();
+            } else {
+                queryAccount();
+            }
         } else {
             //Return an error message to inform user that they need to match passwords
             Context appContext = getApplicationContext();
