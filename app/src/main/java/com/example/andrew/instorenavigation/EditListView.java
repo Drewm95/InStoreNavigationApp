@@ -209,7 +209,6 @@ public class EditListView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
-
     // ---------- Delete Item ----------
     public void deleteItem(final String ListName,final String userID, final String item, Context context) {
         //Connect to the database and authenticate
@@ -266,7 +265,6 @@ public class EditListView extends AppCompatActivity {
 
         queue.add(postRequest);
     }
-
 
     // ---------- Query Items ----------
     private void queryItems() {
@@ -346,6 +344,7 @@ public class EditListView extends AppCompatActivity {
                             CharSequence text = item + " added to list.";
                             int duration = Toast.LENGTH_SHORT;
 
+                            itemName.setText("");
                             Toast toast = Toast.makeText(appContext, text, duration);
                             toast.show();
                             loadTaskList();
@@ -354,6 +353,7 @@ public class EditListView extends AppCompatActivity {
                             CharSequence text = "Item not Found";
                             int duration = Toast.LENGTH_SHORT;
 
+                            itemName.setText("");
                             Toast toast = Toast.makeText(appContext, text, duration);
                             toast.show();
                         }
@@ -424,4 +424,3 @@ public class EditListView extends AppCompatActivity {
         queue.add(postRequest);
     }
 }
-
