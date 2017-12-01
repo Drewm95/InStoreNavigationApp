@@ -11,6 +11,7 @@ package com.example.andrew.instorenavigation;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -24,35 +25,58 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.nio.charset.Charset;
+import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 public class CreateAccountView extends AppCompatActivity {
 
     //Text views from the create account screen.
-    EditText email, password1, password2, strideLength;
+    EditText email;
+    EditText password1;
+    EditText password2;
+    EditText strideLength;
     SeekBar stepSensitivityBar;
+    String passHash;
 
+    private static final String ALGORITHM = "AES";
+    private static final String KEY = "hu098dAb7hSAk7g3";
 
-    @Override
+    private static String encrypt (String value) throws Exception{
+        Key key = generateKey();
+        Cipher cipher = Cipher.getInstance(CreateAccountView.ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte [] encryptedByteValue = cipher.doFinal(value.getBytes("utf-8"));
+        String encryptedValue64 = Base64.encodeToString(encryptedByteValue, Base64.DEFAULT);
+        return encryptedValue64;
+    }
+
+    private static Key generateKey() throws Exception{
+        Key key = new SecretKeySpec(CreateAccountView.KEY.getBytes(), CreateAccountView.ALGORITHM);
+        return key;
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_account);
         super.setTitle("Create Account");
 
         //get all of the text views
-         email = (EditText)findViewById(R.id.editTextEmail);
-         password1 = (EditText)findViewById(R.id.editTextPassword1);
-         password2 = (EditText)findViewById(R.id.editTextPassword2);
-         strideLength = (EditText)findViewById(R.id.editTextStride);
-
+         email = findViewById(R.id.editTextEmail);
+         password1 = findViewById(R.id.editTextPassword1);
+         password2 = findViewById(R.id.editTextPassword2);
+         strideLength = findViewById(R.id.editTextStride);
          //get the sensitivity bar
-        stepSensitivityBar = (SeekBar)findViewById(R.id.sensitivitySeekBar);
+        stepSensitivityBar = findViewById(R.id.sensitivitySeekBar);
 
     }
 
     //Function called when the user clicks the "REGISTER" button.
-    public void register (View view){
+    public void register(View view){
         //check that the passwords match and that the email is correct
         if(password1.getText().toString().equals(password2.getText().toString())) {
             if (email.getText().toString().length() == 0 || password1.getText().toString().length() == 0 ||
@@ -64,6 +88,11 @@ public class CreateAccountView extends AppCompatActivity {
                 Toast toast = Toast.makeText(appContext, text, duration);
                 toast.show();
             } else {
+                try{
+                    passHash = encrypt(password1.getText().toString());
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
                 queryAccount();
             }
         } else {
@@ -79,7 +108,7 @@ public class CreateAccountView extends AppCompatActivity {
 
     }
 
-    public void queryAccount() {
+    private void queryAccount() {
         //Connect to the database and authenticate
         RequestQueue queue = Volley.newRequestQueue(this);
         String responseValue = null;
@@ -135,7 +164,7 @@ public class CreateAccountView extends AppCompatActivity {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("email", email.getText().toString());
-                params.put("password", password1.getText().toString());
+                params.put("password", passHash);
                 params.put("strideLength", strideLength.getText().toString());
                 params.put("stepSensitivity", Integer.toString(stepSensitivityBar.getProgress()));
 
@@ -144,5 +173,4 @@ public class CreateAccountView extends AppCompatActivity {
         };
         queue.add(postRequest);
     }
-
 }

@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,8 +25,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 public class LoginView extends Activity implements View.OnClickListener{
 
@@ -34,7 +39,10 @@ public class LoginView extends Activity implements View.OnClickListener{
     TextView passwordView;
     Button loginButton;
     private String userID;
+    private String passHash;
 
+    private static final String ALGORITHM = "AES";
+    private static final String KEY = "hu098dAb7hSAk7g3";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +50,11 @@ public class LoginView extends Activity implements View.OnClickListener{
         setContentView(R.layout.activity_login_view);
 
         //get the textViews
-        emailView = (TextView) findViewById(R.id.emailView);
-        passwordView = (TextView) findViewById(R.id.passwordView);
-
+        emailView = findViewById(R.id.emailView);
+        passwordView = findViewById(R.id.passwordView);
 
         //get the button
-        loginButton = (Button) findViewById(R.id.loginButton);
+        loginButton = findViewById(R.id.loginButton);
 
         //set the click listener
         loginButton.setOnClickListener(this);
@@ -58,7 +65,26 @@ public class LoginView extends Activity implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         if(v == loginButton)
-            AuthenticateLogin(v);
+            try {
+                passHash = encrypt(passwordView.getText().toString());
+            } catch (Exception e) {
+
+            }
+        AuthenticateLogin(v);
+    }
+
+    private static String encrypt (String value) throws Exception{
+        Key key = generateKey();
+        Cipher cipher = Cipher.getInstance(LoginView.ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte [] encryptedByteValue = cipher.doFinal(value.getBytes("utf-8"));
+        String encryptedValue64 = Base64.encodeToString(encryptedByteValue, Base64.DEFAULT);
+        return encryptedValue64;
+    }
+
+    private static Key generateKey() throws Exception{
+        Key key = new SecretKeySpec(LoginView.KEY.getBytes(), LoginView.ALGORITHM);
+        return key;
     }
 
     //Authentica login with information in the database.
@@ -122,7 +148,7 @@ public class LoginView extends Activity implements View.OnClickListener{
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("email", email);
-                params.put("password", password);
+                params.put("password", passHash);
 
                 return params;
             }

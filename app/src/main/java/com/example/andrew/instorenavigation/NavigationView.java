@@ -114,9 +114,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         //Get the textViews
         //lowAccuracyWarning = (TextView)findViewById(R.id.lowAccuracyWarning);
         //stepCountView = (TextView)findViewById(R.id.NavStepCount);
-        arrow = (ImageView)findViewById(R.id.arrowView);
-        instructionView = (TextView)findViewById(R.id.InstructionView);
-        currentItemView = (TextView)findViewById(R.id.currentProductView);
+        arrow = findViewById(R.id.arrowView);
+        instructionView = findViewById(R.id.InstructionView);
+        currentItemView = findViewById(R.id.currentProductView);
 
 
         //get the default accelerometer from the sm
@@ -346,7 +346,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             arrow.setRotation(0);
             turnComplete = true;
 
-            if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+            if (stepCount >= targetDistance / stepDistRatio) {
 
                 if(items != null) {
                     if (items.size() > 1) {
@@ -421,7 +421,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 }
             }
             //now check if they completed the distance portion
-            else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+            else if (stepCount >= targetDistance / stepDistRatio) {
 
                 if(!waitForConfirmation) {
                     //Update instructions
@@ -466,7 +466,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 }
             }
             //now check if they completed the distance portion
-            else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+            else if (stepCount >= targetDistance / stepDistRatio) {
 
                 if(!waitForConfirmation) {
                     //Update instructions

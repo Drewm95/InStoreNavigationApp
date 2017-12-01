@@ -76,8 +76,7 @@ public class EditListView extends AppCompatActivity {
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_dropdown_item_1line,itemsForAutoComplete);
-        AutoCompleteTextView textView = (AutoCompleteTextView)
-                findViewById(R.id.txtItem);
+        AutoCompleteTextView textView = findViewById(R.id.txtItem);
         textView.setAdapter(adapter);
 
         queryItems();
@@ -136,7 +135,7 @@ public class EditListView extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         View parent = (View)view.getParent();
-                        TextView taskTextView = (TextView)parent.findViewById(R.id.item_title);
+                        TextView taskTextView = parent.findViewById(R.id.item_title);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
                         deleteItem(listName, userID, task, context);

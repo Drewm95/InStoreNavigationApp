@@ -180,11 +180,7 @@ public class StoreView extends AppCompatActivity {
                                         storeID = response.substring(i, j);
                                     } else {
                                         String temp = response.substring(i, j);
-                                        if (temp.equals("0")) {
-                                            startHasProducts = true;
-                                        } else {
-                                            startHasProducts = false;
-                                        }
+                                        startHasProducts = temp.equals("0");
                                     }
                                     i = j+1;
                                 }

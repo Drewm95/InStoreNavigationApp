@@ -40,10 +40,10 @@ public class SettingsView extends AppCompatActivity{
         setContentView(R.layout.activity_edit_settings);
         super.setTitle("Settings");
 
-        strideLength = (EditText)findViewById(R.id.editTextStride);
+        strideLength = findViewById(R.id.editTextStride);
 
         //get the sensitivity bar
-        stepSensitivityBar = (SeekBar)findViewById(R.id.sensitivitySeekBar);
+        stepSensitivityBar = findViewById(R.id.sensitivitySeekBar);
 
         queryGetWalkData();
     }
