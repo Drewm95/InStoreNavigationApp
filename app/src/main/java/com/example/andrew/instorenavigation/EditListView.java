@@ -76,8 +76,7 @@ public class EditListView extends AppCompatActivity {
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_dropdown_item_1line,itemsForAutoComplete);
-        AutoCompleteTextView textView = (AutoCompleteTextView)
-                findViewById(R.id.txtItem);
+        AutoCompleteTextView textView = findViewById(R.id.txtItem);
         textView.setAdapter(adapter);
 
         queryItems();
@@ -136,7 +135,7 @@ public class EditListView extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         View parent = (View)view.getParent();
-                        TextView taskTextView = (TextView)parent.findViewById(R.id.item_title);
+                        TextView taskTextView = parent.findViewById(R.id.item_title);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
                         deleteItem(listName, userID, task, context);
@@ -210,7 +209,6 @@ public class EditListView extends AppCompatActivity {
         queue.add(postRequest);
     }
 
-
     // ---------- Delete Item ----------
     public void deleteItem(final String ListName,final String userID, final String item, Context context) {
         //Connect to the database and authenticate
@@ -267,7 +265,6 @@ public class EditListView extends AppCompatActivity {
 
         queue.add(postRequest);
     }
-
 
     // ---------- Query Items ----------
     private void queryItems() {
@@ -347,6 +344,7 @@ public class EditListView extends AppCompatActivity {
                             CharSequence text = item + " added to list.";
                             int duration = Toast.LENGTH_SHORT;
 
+                            itemName.setText("");
                             Toast toast = Toast.makeText(appContext, text, duration);
                             toast.show();
                             loadTaskList();
@@ -355,6 +353,7 @@ public class EditListView extends AppCompatActivity {
                             CharSequence text = "Item not Found";
                             int duration = Toast.LENGTH_SHORT;
 
+                            itemName.setText("");
                             Toast toast = Toast.makeText(appContext, text, duration);
                             toast.show();
                         }
@@ -425,4 +424,3 @@ public class EditListView extends AppCompatActivity {
         queue.add(postRequest);
     }
 }
-

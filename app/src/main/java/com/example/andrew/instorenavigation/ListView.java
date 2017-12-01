@@ -66,7 +66,7 @@ public class ListView extends AppCompatActivity {
         //Grab area where to place lists.
         lstNames = findViewById(R.id.lists);
 
-        listName = (TextView) findViewById(R.id.txtListName);
+        listName = findViewById(R.id.txtListName);
 
         //Store User_ID passed forward form login.
         Intent loginID = getIntent();
@@ -130,7 +130,7 @@ public class ListView extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         View parent = (View)view.getParent();
-                        TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
+                        TextView taskTextView = parent.findViewById(R.id.list_title);
                         Log.e("String", (String) taskTextView.getText());
                         String task = String.valueOf(taskTextView.getText());
 
@@ -145,7 +145,7 @@ public class ListView extends AppCompatActivity {
     //Method called on click of edit button.
     public void editList(View view) {
         View parent = (View)view.getParent();
-        TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
+        TextView taskTextView = parent.findViewById(R.id.list_title);
         Log.e("String", (String) taskTextView.getText());
         String task = String.valueOf(taskTextView.getText());
 
@@ -159,7 +159,7 @@ public class ListView extends AppCompatActivity {
     //Method called on navigation click.
     public void storeSelect(View view) {
         View parent = (View)view.getParent();
-        TextView taskTextView = (TextView)parent.findViewById(R.id.list_title);
+        TextView taskTextView = parent.findViewById(R.id.list_title);
         Log.e("String", (String) taskTextView.getText());
         String task = String.valueOf(taskTextView.getText());
 
