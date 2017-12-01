@@ -424,11 +424,11 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     arrow.setRotation(270);
                     instructionView.setText("Turn Left Now");
 
-                    if (((azimuth - azumuthStart <= -75 && azimuth - azumuthStart >= -105) || (azumuthStart + 75 >= 360 && azimuth > degreesOver360Low && azimuth < degreesOver360High)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)) {
+                    if (((azimuth - azumuthStart <= -75 && azimuth - azumuthStart >= -105) || (azumuthStart + 75 <= 360 && azimuth < degreesOver360Low && azimuth > degreesOver360High)) && (newZ < 0.8 && newZ > -0.8 && abs(newZ - lastZ) < 1)) {
                         if (azimuthCheck > 8) {
                             arrow.setImageDrawable(getDrawable(R.drawable.arrowforward));
                             arrow.setRotation(0);
-                            instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
+                            instructionView.setText("Walk Forward " + (targetDistance/ 12 ) + " feet");
                             turnComplete = true;
                             azimuthCheck = 0;
                         } else {
@@ -508,7 +508,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         }
         else{
 
-            if(items.size() < 1) {
+            if(items.size() < 0) {
                 //Make and show a complete message
                 arrow.setVisibility(View.INVISIBLE);
                 instructionView.setVisibility(View.INVISIBLE);
@@ -516,10 +516,10 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 finish();
             }
             else{
-                arrow.setImageDrawable(getDrawable(R.drawable.stop256));
-                arrow.setRotation(0);
-                instructionView.setText("Please check off remaining items");
-
+                //arrow.setImageDrawable(getDrawable(R.drawable.stop256));
+                //arrow.setRotation(0);
+                //instructionView.setText("Please check off remaining items");
+                waitForConfirmation = true;
             }
         }
 
@@ -871,7 +871,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     //handle the user checking off an item
     public void CheckOffItem(View view){
         if(items != null) {
-            if (items.size() > 1) {
+            if (items.size() >= 0) {
                 //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
                 queryProductAtNode(storeID, Integer.toString(nextNodeID));
                 //check the current product against the new list of products
@@ -879,38 +879,102 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     for (String product : productsAtNode) {
                         if (product.equalsIgnoreCase(currentItemView.getText().toString())) {
                             //move the top item in the list view up to the current item text view
-                            currentItemView.setText(lstTask.getItemAtPosition(0).toString());
-                            items.remove(0);
-                            lstTask.invalidateViews();
 
+                            if(lstTask.getCount() > 0 ){
+                                currentItemView.setText(lstTask.getItemAtPosition(0).toString());
+                                items.remove(0);
+
+                                lstTask.invalidateViews();
+                            }
                             //check if the next item is at this node
-                            int found = 0;
-                            for (String product1 : productsAtNode) {
+                            if(items.size() > 0) {
+                                int found = 0;
+                                for (String product1 : productsAtNode) {
 
-                                if (product1.equalsIgnoreCase(currentItemView.getText().toString())) {
-                                    found = 1;
+                                    if (product1.equalsIgnoreCase(currentItemView.getText().toString())) {
+                                        found = 1;
+                                    }
+                                }
+
+                                if (found == 0) {
+                                    //set the wait for confirmation to zero
+                                    waitForConfirmation = false;
+                                    instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
+                                    updateArrow();
                                 }
                             }
-
-                            if(found == 0) {
-                                //set the wait for confirmation to zero
-                                waitForConfirmation = false;
-                                instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
-                                updateArrow();
+                            else{
+                                if (product.equalsIgnoreCase(currentItemView.getText().toString())) {
+                                    //this is the last product and it matches
+                                    toastMessage("List Complete");
+                                    goToListView();
+                                }
                             }
                             break;
+
                         }
 
                     }
 
                 }
             }
+            else {
+                //This is the last item
+                queryProductAtNode(storeID, Integer.toString(nextNodeID));
+                //check the current product against the new list of products
+                if (productsAtNode != null) {
+                    for (String product : productsAtNode) {
+                        if (product.equalsIgnoreCase(currentItemView.getText().toString())) {
+                            //move the top item in the list view up to the current item text view
+                            currentItemView.setText(lstTask.getItemAtPosition(0).toString());
+                            items.remove(0);
+                            lstTask.invalidateViews();
+
+                            //they have completed the list, return the user to the list screen
+                            toastMessage("List Complete");
+                            //take the user back to the list view
+                            goToListView();
+                        }
+                    }
+                }
+            }
         }
         else{
+
+
             //they have completed the list, return the user to the list screen
+
+            //This is the last item
+            queryProductAtNode(storeID, Integer.toString(nextNodeID));
+            //check the current product against the new list of products
+            if (productsAtNode != null) {
+                for (String product : productsAtNode) {
+                    if (product.equalsIgnoreCase(currentItemView.getText().toString())) {
+                        //move the top item in the list view up to the current item text view
+                        currentItemView.setText(lstTask.getItemAtPosition(0).toString());
+                        items.remove(0);
+                        lstTask.invalidateViews();
+
+                        //they have completed the list, return the user to the list screen
+                        toastMessage("List Complete");
+                        goToListView();
+                    }
+                }
+            }
+
             toastMessage("List Complete");
             finish();
         }
+    }
+
+
+    //Start List View Activity.
+    public void goToListView() {
+        //Switch view to the list view
+        Intent intent = new Intent(this, ListView.class);
+        //Pass forward UserID to serve user specific information.
+        intent.putExtra("userID", userID );
+        startActivity(intent);
     }
 
 }
