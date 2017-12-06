@@ -31,122 +31,122 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StoreView extends AppCompatActivity {
-    ArrayAdapter<String> mAdapter;
-    ArrayAdapter<String> mAdapter2;
-    android.widget.ListView storeNames;
+    public class StoreView extends AppCompatActivity {
+        ArrayAdapter<String> mAdapter;
+        ArrayAdapter<String> mAdapter2;
+        android.widget.ListView storeNames;
 
-    private boolean startHasProducts;
-    private String storeID;
-    String listName;
-    String UID;
+        private boolean startHasProducts;
+        private String storeID;
+        String listName;
+        String UID;
 
-    private String productString;
-    private ArrayList<String> stores;
-    private ArrayList<String> storeIDs;
-    private Context context;
-    private ArrayList<String> products;
-    private String start;
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_store_view);
-        context = this;
-        products = new ArrayList<>();
-        stores = new ArrayList<>();
-        storeIDs = new ArrayList<>();
-        storeNames = findViewById(R.id.storeList);
-
-        Intent load = getIntent();
-        productString = load.getStringExtra("ProductsString");
-        UID = load.getStringExtra("UserID");
-        listName = load.getStringExtra("ListName");
-        super.setTitle("Select Store: " + listName);
+        private String productString;
+        private ArrayList<String> stores;
+        private ArrayList<String> storeIDs;
+        private Context context;
+        private ArrayList<String> products;
+        private String start;
 
 
-        parseItemNames(productString);
-        //queryItems();
-    }
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_store_view);
+            context = this;
+            products = new ArrayList<>();
+            stores = new ArrayList<>();
+            storeIDs = new ArrayList<>();
+            storeNames = findViewById(R.id.storeList);
 
-    //Generate an item for each store.
-    public void loadTaskList() {
+            Intent load = getIntent();
+            productString = load.getStringExtra("ProductsString");
+            UID = load.getStringExtra("UserID");
+            listName = load.getStringExtra("ListName");
+            super.setTitle("Select Store: " + listName);
 
-        try {
-            if (mAdapter == null) {
-                mAdapter = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_title, stores);
-                mAdapter2 = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_ID, storeIDs);
-                storeNames.setAdapter(mAdapter);
-                //handle click on a specific item
-                storeNames.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
 
-                        path(pos);
-                    }
-                });
-            } else {
-                mAdapter = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_title, stores);
-                mAdapter2 = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_ID, storeIDs);
-                storeNames.setAdapter(mAdapter);
-                mAdapter.notifyDataSetChanged();
-                //handle click on a specific item
-                storeNames.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
-                        path(pos);
-                    }
-                });
+            parseItemNames(productString);
+            //queryItems();
+        }
+
+        //Generate an item for each store.
+        public void loadTaskList() {
+
+            try {
+                if (mAdapter == null) {
+                    mAdapter = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_title, stores);
+                    mAdapter2 = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_ID, storeIDs);
+                    storeNames.setAdapter(mAdapter);
+                    //handle click on a specific item
+                    storeNames.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
+
+                            path(pos);
+                        }
+                    });
+                } else {
+                    mAdapter = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_title, stores);
+                    mAdapter2 = new ArrayAdapter<String>(this, R.layout.generate_store_view, R.id.store_ID, storeIDs);
+                    storeNames.setAdapter(mAdapter);
+                    mAdapter.notifyDataSetChanged();
+                    //handle click on a specific item
+                    storeNames.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
+                            path(pos);
+                        }
+                    });
+                }
+
             }
-
+            catch (Exception e){
+                e.printStackTrace();
+            }
         }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
-    //Method will use a queryNodes to select the stores that hold all of the products.
+        //Method will use a queryNodes to select the stores that hold all of the products.
         //Will then change the display to show all the store names with a button to
         //navigate.
-    public void queryStores() {
-        ArrayList<String> stores;
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String responseValue = null;
+        public void queryStores() {
+            ArrayList<String> stores;
+            RequestQueue queue = Volley.newRequestQueue(this);
+            String responseValue = null;
 
 
-        String url = "http://34.238.160.248/getStores.php";
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // response
-                        Log.d("Response", response);
+            String url = "http://34.238.160.248/getStores.php";
+            StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            // response
+                            Log.d("Response", response);
 
-                        if(response.length() > 1){
-                            parseStores(response);
+                            if(response.length() > 1){
+                                parseStores(response);
+                            }
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // error
+                            Log.d("Error.Response", error.toString());
                         }
                     }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // error
-                        Log.d("Error.Response", error.toString());
-                    }
-                }
-        ) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("List_Name", listName);
-                params.put("Users_UserID", UID);
+            ) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("List_Name", listName);
+                    params.put("Users_UserID", UID);
 
-                return params;
-            }
-        };
-        queue.add(postRequest);
-    }
+                    return params;
+                }
+            };
+            queue.add(postRequest);
+        }
 
     //Find the start node of the store.
     private void queryStart() {
