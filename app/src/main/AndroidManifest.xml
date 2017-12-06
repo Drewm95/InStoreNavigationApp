@@ -18,8 +18,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".NavigationView" />
-        <activity android:name=".ListView" />
-        <activity android:name=".EditListView" />
+        <activity android:name=".ListView"
+            android:windowSoftInputMode="stateHidden"
+            />
+        <activity android:name=".EditListView"
+            android:windowSoftInputMode="stateHidden"
+            />
         <activity android:name=".StoreView" />
         <activity android:name=".SettingsView" />
         <activity android:name=".CreateAccountView"/>
