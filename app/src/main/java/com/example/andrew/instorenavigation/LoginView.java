@@ -110,7 +110,7 @@ public class LoginView extends Activity implements View.OnClickListener{
                         Log.d("Response", response);
 
                         //Unexpected response. Error on server side.
-                        if(response.equals("Bad")){
+                        if(response.equals("error")){
                             Context appContext = getApplicationContext();
                             CharSequence text = "An Unexpected Error Occurred";
                             int duration = Toast.LENGTH_SHORT;
@@ -119,7 +119,7 @@ public class LoginView extends Activity implements View.OnClickListener{
                             toast.show();
                         //Response returns empty string meaning that the user has entered
                             //inlaid credentials/
-                        } else if (response.equals("")){
+                        } else if (response.equals("bad")){
                             Context appContext = getApplicationContext();
                             CharSequence text = "Email or Password is Incorrect";
                             int duration = Toast.LENGTH_SHORT;

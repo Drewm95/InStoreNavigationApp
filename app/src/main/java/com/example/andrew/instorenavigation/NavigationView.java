@@ -61,13 +61,17 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     private ImageView arrow;
     private Integer instructionString;
     private ArrayList<int[]> directionList = new ArrayList<int[]>();
+    private ArrayList<String> OrderedProductList = new ArrayList<String>();
     private boolean turnComplete;
     private  AlertDialog lowAccuracyAlert;
     private String userID, listName, storeID;
     private int nextNodeID;
     private boolean waitForConfirmation;
     private String[] productsAtNode;
+    private String[][] productNodeList = new String[100][2];
+    private ArrayList<Integer> nodeList = new ArrayList<Integer>();
     private String startNode;
+    private int responsesReceived = 0;
 
     //Arraylist to hold all items inside of the list.
     private ArrayList<String> items;
@@ -118,9 +122,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         //Get the textViews
         //lowAccuracyWarning = (TextView)findViewById(R.id.lowAccuracyWarning);
         //stepCountView = (TextView)findViewById(R.id.NavStepCount);
-        arrow = (ImageView)findViewById(R.id.arrowView);
-        instructionView = (TextView)findViewById(R.id.InstructionView);
-        currentItemView = (TextView)findViewById(R.id.currentProductView);
+        arrow = findViewById(R.id.arrowView);
+        instructionView = findViewById(R.id.InstructionView);
+        currentItemView = findViewById(R.id.currentProductView);
 
 
         //get the default accelerometer from the sm
@@ -187,7 +191,6 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
         //by default set wait to false
         waitForConfirmation = false;
-
 
 
         demoSetup();
@@ -330,6 +333,20 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     }
                 }
             }
+
+        if(sensor == mla){
+            if(accuracy < 3) {
+                lowAccuracyAlert.show();
+            }
+            if(accuracy > 2 && lowAccuracyAlert.isShowing()){
+                try {
+                    lowAccuracyAlert.hide();
+                }
+                catch (Exception e){
+                    System.out.println("Failed to hide dialog");
+                }
+            }
+        }
     }
 
     public static double round(double value, int places) {
@@ -358,7 +375,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 arrow.setRotation(0);
                 turnComplete = true;
 
-                if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+                if (stepCount >= targetDistance / stepDistRatio) {
 
                     //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
                     //queryProductAtNode(storeID, Integer.toString(nextNodeID));
@@ -401,7 +418,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     }
                 }
                 //now check if they completed the distance portion
-                else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+                else if (stepCount >= targetDistance / stepDistRatio) {
 
                     //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
                     //queryProductAtNode(storeID, Integer.toString(nextNodeID));
@@ -440,7 +457,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     }
                 }
                 //now check if they completed the distance portion
-                else if (stepCount >= (float) (targetDistance / stepDistRatio)) {
+                else if (stepCount >= targetDistance / stepDistRatio) {
 
                     //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
                     //queryProductAtNode(storeID, Integer.toString(nextNodeID));
@@ -583,6 +600,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     tempStopNode = Integer.parseInt(temp.substring(i,j));
                     int tempArray[] = new int[]{tempDistance, tempDirection, tempStopNode};
                     directionList.add(tempArray);
+                    nodeList.add(tempStopNode);
                     System.out.println(tempArray[2]);
                 }
                 i = j+1;
@@ -594,7 +612,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
 
     public void queryMap(View view){
-        //Connect to the database and authenticate
+        //Connect to the database
         RequestQueue queue = Volley.newRequestQueue(this);
         final String responseValue = null;
 
@@ -642,7 +660,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
 // ---------- Query Items ----------
     private void queryItems() {
-        //Connect to the database and authenticate
+        //Connect to the database
         RequestQueue queue = Volley.newRequestQueue(this);
         final String responseValue = null;
 
@@ -690,11 +708,19 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             if (check.equals("`")) {
                 String temp = items.substring(i,j);
                 this.items.add(temp);
+
+                //get the node ID for the product
+
+
+                //
                 i = j+1;
             }
         }
 
-        loadTaskList();
+
+        //get the product nodes -> orderlist -> populate list (All of these are called within get product nodes after each operation finishes
+        getProductNodes();
+
     }
 
     // ---------- Load Task List ----------
@@ -814,6 +840,56 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     }
 
     //Get the products at a specific node
+    private void queryNodeAtProduct(final String storeId, final String productName, final int productNum) {
+
+
+        //Connect to the database and authenticate
+        RequestQueue queue = Volley.newRequestQueue(this);
+        final String responseValue = null;
+
+
+        String url = "http://34.238.160.248/getNode.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        String responseList[] = response.split("`");
+                        productNodeList[productNum][0] = productName;
+                        productNodeList[productNum][1] = responseList[0];
+                        responsesReceived++;
+
+                        if(responsesReceived == items.size()){
+                            orderList();
+                        }
+
+                        Log.d("Response ProductNodeList", response);
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+
+
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Product_Names", productName);
+                params.put("Store_SID", storeId);
+                return params;
+            }
+        };
+        queue.add(postRequest);
+
+    }
+
+    //Get the products at a specific node
     private void queryProductAtNode(final String storeId, final String nodeID) {
 
         //Connect to the database and authenticate
@@ -872,6 +948,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     public void CheckOffItem(View view){
         if(items != null) {
             if (items.size() >= 0) {
+
                 //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
                 queryProductAtNode(storeID, Integer.toString(nextNodeID));
                 //check the current product against the new list of products
@@ -965,6 +1042,43 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             toastMessage("List Complete");
             finish();
         }
+    }
+
+    //-----------get node for each product-------------
+    private void getProductNodes(){
+        if(items != null){
+            //get the node for each product
+            for(int i = 0; i < items.size(); i++) {
+
+                    queryNodeAtProduct(storeID, items.get(i), i);
+
+            }
+        }
+    }
+
+    //-------Order the list----------
+    private void orderList(){
+
+        for(int i = 0 ; i < nodeList.size() + 1; i++){
+            for(int j = 0; j < productNodeList.length; j++){
+
+                if(i == nodeList.size()){ //we have to do this because these operations need to happen in order
+                    //Now that all items are ordered send those to the items list
+                    items = OrderedProductList;
+
+                    //populate the list
+                    loadTaskList();
+                }
+                //if the node of the product matches the node list, add that product to the ordered list
+                else if(productNodeList[i][0] != null) {
+                    if (Integer.parseInt(productNodeList[i][1]) == nodeList.get(i)) {
+                        OrderedProductList.add(productNodeList[i][0]);
+                    }
+                }
+            }
+
+        }
+
     }
 
 
