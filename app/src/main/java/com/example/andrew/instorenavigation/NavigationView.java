@@ -67,7 +67,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
     private String userID, listName, storeID;
     private int nextNodeID;
     private boolean waitForConfirmation;
-    private String[] productsAtNode;
+    private String[] productsAtNode = new String[10];
     private String[][] productNodeList = new String[100][2];
     private ArrayList<Integer> nodeList = new ArrayList<Integer>();
     private String startNode;
@@ -107,6 +107,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
         azimuth = 0;
         turnComplete = false;
+
+        //add the first node to the node list
+        nodeList.add(Integer.parseInt(startNode));
 
         //parse the path
         parseDetailedPath(pathString);
@@ -428,6 +431,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     turnComplete = false;
                     CheckNavigation();
 
+
                 }
             }
 
@@ -459,13 +463,13 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 //now check if they completed the distance portion
                 else if (stepCount >= targetDistance / stepDistRatio) {
 
-                    //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
-                    //queryProductAtNode(storeID, Integer.toString(nextNodeID));
                     //Update instructions
                     navStep++;
                     stepCount = 0;
                     turnComplete = false;
                     CheckNavigation();
+
+
 
                 }
             }
@@ -480,12 +484,12 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         int gotonext = 1;
 
             if(items != null) {
-                if (items.size() > 1) {
+                if (items.size() >= 0) {
                  //check the current product against the new list of products
                  if (productsAtNode != null) {
                      for (String product : productsAtNode) {
                         for(String itemName: items) {
-                            if (itemName.equals(product) && gotonext != 0) {
+                            if (itemName.equals(product) || currentItemView.getText().toString().equals(product) && gotonext != 0) {
                                 gotonext = 0;
                             }
                     }
@@ -496,10 +500,8 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
         }
         if(gotonext == 1){
         //Update instructions
-        navStep++;
-        stepCount = 0;
-        turnComplete = false;
-        CheckNavigation();
+        waitForConfirmation = false;
+        updateArrow();
     } else {
         arrow.setImageDrawable(getDrawable(R.drawable.stop256));
         instructionView.setText("Confirm Item PickUp");
@@ -518,27 +520,22 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     protected void CheckNavigation(){
         int directionArray[] = new int[2];
-        if(navStep < directionList.size()) {
-            directionArray = directionList.get(navStep);
-            updateNav(directionArray[0], directionArray[1], directionArray[2]);
+        if(navStep <= directionList.size()) {
+            if(navStep > 0) {
+                directionArray = directionList.get(navStep - 1);
+            }
+            else{
+                directionArray = directionList.get(0);
+            }
+            updateNav(directionArray[ 0], directionArray[1], directionArray[2]);
 
         }
         else{
-
-            if(items.size() < 0) {
-                //Make and show a complete message
-                arrow.setVisibility(View.INVISIBLE);
-                instructionView.setVisibility(View.INVISIBLE);
-                toastMessage("Navigation Complete");
-                finish();
-            }
-            else{
-                //arrow.setImageDrawable(getDrawable(R.drawable.stop256));
-                //arrow.setRotation(0);
-                //instructionView.setText("Please check off remaining items");
-                waitForConfirmation = true;
-            }
+                //Something went wrong. Probably means that navstep was incremented too fast without the items being checked off first.
+                toastMessage("Navigation Failure.");
         }
+
+        Log.d("Nav Update", "At node: " + nextNodeID + "    Step: " + navStep);
 
     }
 
@@ -555,7 +552,12 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
             degreesOver360High = 105 - degreesUnder360;
         }
         //get the node ID
-        nextNodeID = nodeID;
+        if(navStep == 0) {
+            nextNodeID = nodeList.get(0);
+        }
+        else{
+            nextNodeID = nodeID;
+        }
 
         queryProductAtNode(storeID, Integer.toString(nextNodeID));
 
@@ -936,7 +938,7 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Node_NID", nodeID);
                 params.put("Store_SID", storeId);
-                System.out.println(nodeID +"  " + storeId);
+                System.out.println(nodeID +"  " + storeId + "  " + navStep);
                 return params;
             }
         };
@@ -946,11 +948,15 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
 
     //handle the user checking off an item
     public void CheckOffItem(View view){
+        if(!waitForConfirmation) {
+            return;
+        }
         if(items != null) {
             if (items.size() >= 0) {
 
                 //check if the now current item on the list is at the current node, if so the wait for confirmation will return to true
-                queryProductAtNode(storeID, Integer.toString(nextNodeID));
+                queryProductAtNode(storeID, Integer.toString(nodeList.get(navStep))); //get the current node, this is stupid but this bug was found late and this is is our solution. It works ok
+
                 //check the current product against the new list of products
                 if(productsAtNode != null) {
                     for (String product : productsAtNode) {
@@ -979,12 +985,21 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                                     instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
                                     updateArrow();
                                 }
+                                else{
+                                    waitForConfirmation = true;
+                                }
                             }
-                            else{
+                            else{ //the list is empty but there is one product left in the next item text view
                                 if (product.equalsIgnoreCase(currentItemView.getText().toString())) {
                                     //this is the last product and it matches
                                     toastMessage("List Complete");
                                     goToListView();
+                                }
+                                else{
+                                    //set the wait for confirmation to zero
+                                    waitForConfirmation = false;
+                                    instructionView.setText("Walk Forward " + targetDistance / 12 + " feet");
+                                    updateArrow();
                                 }
                             }
                             break;
@@ -1070,9 +1085,9 @@ public class NavigationView extends AppCompatActivity implements SensorEventList
                     loadTaskList();
                 }
                 //if the node of the product matches the node list, add that product to the ordered list
-                else if(productNodeList[i][0] != null) {
-                    if (Integer.parseInt(productNodeList[i][1]) == nodeList.get(i)) {
-                        OrderedProductList.add(productNodeList[i][0]);
+                else if(productNodeList[j][0] != null) {
+                    if (Integer.parseInt(productNodeList[j][1].toString()) == nodeList.get(i)) {
+                        OrderedProductList.add(productNodeList[j][0]);
                     }
                 }
             }
